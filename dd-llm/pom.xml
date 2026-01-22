@@ -7,6 +7,8 @@
   <modules>
     <!--<module>dd-module-core</module>-->
     <module>dd-module-core</module>
+    <module>dd-test-suite</module>
+    <module>dd-it-suite</module>
   </modules>
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
