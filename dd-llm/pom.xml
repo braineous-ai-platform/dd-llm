@@ -9,10 +9,11 @@
     <module>dd-module-core</module>
     <module>dd-module-policygate</module>
     <module>dd-module-commit-router</module>
-    <module>dd-module-prompt-catalog</module>
+    <!--<module>dd-module-prompt-catalog</module>-->
     <module>dd-module-query</module>
     <module>dd-pack</module>
     <module>dd-module-infra</module>
+    <module>dd-module-persistence</module>
     <module>dd-test-suite</module>
     <module>dd-it-suite</module>
   </modules>
