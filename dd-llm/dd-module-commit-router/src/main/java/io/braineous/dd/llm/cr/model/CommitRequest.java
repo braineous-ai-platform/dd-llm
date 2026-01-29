@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class CommitRequest {
 
+    private String commitId;
+
     private String queryKind;          // which catalog entry / query kind this decision is for
     private String catalogVersion;
     private String actor;              // manual user / system (string)
@@ -18,6 +20,14 @@ public class CommitRequest {
     private JsonObject payload;        // the thing being committed (manual loop can carry normalized output)
 
     public CommitRequest() {
+    }
+
+    public String getCommitId() {
+        return commitId;
+    }
+
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
     }
 
     public String getQueryKind() { return queryKind; }
@@ -66,12 +76,22 @@ public class CommitRequest {
         return this.notes;
     }
 
+    public String safeCommitId() {
+        if (this.commitId == null) { return null; }
+        String t = this.commitId.trim();
+        if (t.isEmpty()) { return null; }
+        return t;
+    }
+
     // -------------------------
     // JSON serialization
     // -------------------------
 
     public JsonObject toJson() {
         JsonObject root = new JsonObject();
+
+        String cid = safeCommitId();
+        if (cid != null) { root.addProperty("commitId", cid); }
 
         String qk = safeQueryKind();
         if (qk != null) { root.addProperty("queryKind", qk); }
@@ -109,6 +129,10 @@ public class CommitRequest {
         if (json == null) { return null; }
 
         CommitRequest r = new CommitRequest();
+
+        if (json.has("commitId") && !json.get("commitId").isJsonNull()) {
+            try { r.setCommitId(json.get("commitId").getAsString()); } catch (RuntimeException re) { }
+        }
 
         if (json.has("queryKind") && !json.get("queryKind").isJsonNull()) {
             try { r.setQueryKind(json.get("queryKind").getAsString()); } catch (RuntimeException re) { }

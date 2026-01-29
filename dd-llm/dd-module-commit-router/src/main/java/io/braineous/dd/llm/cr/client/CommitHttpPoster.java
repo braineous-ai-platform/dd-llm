@@ -1,0 +1,38 @@
+package io.braineous.dd.llm.cr.client;
+
+import ai.braineous.cgo.config.ConfigService;
+import ai.braineous.rag.prompt.observe.Console;
+import io.braineous.dd.llm.core.processor.HttpPoster;
+import jakarta.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+public class CommitHttpPoster implements HttpPoster {
+
+    @Override
+    public int post(String endpoint, String jsonBody) throws Exception {
+        /*DDConfigService ddCfgSvc = new DDConfigService();
+        ConfigService cfg = ddCfgSvc.configService();
+        String env = cfg.getProperty(DDConfigService.dd_env);
+
+        String base = ddCfgSvc.internalDlqBase(env) + "/dlq";*/
+
+        String base = "http://localhost:8081";
+
+        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+
+        String baseUrl = base + "/" + endpoint;
+        Console.log("__________producer_url_______", baseUrl);
+
+        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        java.net.http.HttpResponse<String> resp =
+                client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        return resp.statusCode();
+    }
+
+}
