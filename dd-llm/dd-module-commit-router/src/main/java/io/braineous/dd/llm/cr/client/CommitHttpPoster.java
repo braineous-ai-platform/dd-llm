@@ -2,6 +2,7 @@ package io.braineous.dd.llm.cr.client;
 
 import ai.braineous.cgo.config.ConfigService;
 import ai.braineous.rag.prompt.observe.Console;
+import io.braineous.dd.llm.core.config.DDConfigService;
 import io.braineous.dd.llm.core.processor.HttpPoster;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -10,18 +11,17 @@ public class CommitHttpPoster implements HttpPoster {
 
     @Override
     public int post(String endpoint, String jsonBody) throws Exception {
-        /*DDConfigService ddCfgSvc = new DDConfigService();
+        DDConfigService ddCfgSvc = new DDConfigService();
         ConfigService cfg = ddCfgSvc.configService();
         String env = cfg.getProperty(DDConfigService.dd_env);
 
-        String base = ddCfgSvc.internalDlqBase(env) + "/dlq";*/
-
-        String base = "http://localhost:8081";
+        String base = ddCfgSvc.internalProducerBase(env) + "/commit";
 
         java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
 
         String baseUrl = base + "/" + endpoint;
-        Console.log("__________producer_url_______", baseUrl);
+        Console.log("______environment_________", env);
+        Console.log("__________commit_url_______", baseUrl);
 
         java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(baseUrl))

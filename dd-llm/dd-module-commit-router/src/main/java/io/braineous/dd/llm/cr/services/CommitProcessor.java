@@ -6,10 +6,7 @@ import io.braineous.dd.llm.core.processor.GsonJsonSerializer;
 import io.braineous.dd.llm.core.processor.HttpPoster;
 import io.braineous.dd.llm.core.processor.JsonSerializer;
 import io.braineous.dd.llm.cr.client.CommitClient;
-import io.braineous.dd.llm.cr.model.CommitAuditView;
-import io.braineous.dd.llm.cr.model.CommitReceipt;
-import io.braineous.dd.llm.cr.model.CommitRequest;
-import io.braineous.dd.llm.cr.model.CommitEvent;
+import io.braineous.dd.llm.cr.model.*;
 import io.braineous.dd.llm.cr.persistence.CommitAuditViewMongoStore;
 import io.braineous.dd.llm.cr.persistence.CommitEventMongoStore;
 import io.braineous.dd.llm.cr.persistence.CommitReceiptMongoStore;
@@ -95,22 +92,32 @@ public class CommitProcessor {
                 return;
             }
 
+            try {
+                if (asyncMode) {
+                    //emit to the downstream 'commit' topic
+                    JsonSerializer ser = new GsonJsonSerializer();
+                    String endpoint = "llm/response";
+                    JsonObject commitJson = view.toJson();
 
-            if(asyncMode) {
-                //TODO
-                //emit to the downstream topic
-                //if fail, DLQ-S
-                JsonSerializer ser = new GsonJsonSerializer();
-                String endpoint = "/commit/llm/response";
-                JsonObject commitJson = view.toJson();
+                    CommitResult cr = CommitClient.getInstance().invoke(
+                            this.httpPoster,
+                            ser,
+                            endpoint,
+                            commitJson,
+                            commitJson
+                    );
 
-                CommitClient.getInstance().invoke(
-                       this.httpPoster,
-                       ser,
-                       endpoint,
-                       commitJson,
-                       commitJson
-                );
+
+                    if (cr == null || !cr.isOk()) {
+                        //if fail, DLQ-S
+                        //no return. still record the view.
+                        //view should not drift due to any error
+                        //in emission
+                    }
+                }
+            }catch(Exception e){
+                //kafka_failure, hence place in DLQ-S for retry
+                //but view should be recorded
             }
 
             //update db and corresponding collections

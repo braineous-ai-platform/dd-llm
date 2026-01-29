@@ -16,7 +16,7 @@ public class CommitResource {
    return;
   }
 
-  Console.log("____commit_llm_response____", payload);
+  Console.log("____commit_llm_response_to_external_system____", payload);
 
    //this.processor.handleSystemFailure(payload);
  }

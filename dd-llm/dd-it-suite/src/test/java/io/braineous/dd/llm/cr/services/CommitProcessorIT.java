@@ -70,7 +70,7 @@ public class CommitProcessorIT {
         processor.orchestrate(req);
 
         // 1) request
-        /*CommitRequest loadedReq = requestStore.getRequest(commitId);
+        CommitRequest loadedReq = requestStore.getRequest(commitId);
         Console.log("LOADED_REQ", loadedReq == null ? "null" : loadedReq.toJsonString());
         org.junit.jupiter.api.Assertions.assertNotNull(loadedReq);
         org.junit.jupiter.api.Assertions.assertEquals("audit.commit", loadedReq.safeQueryKind());
@@ -108,7 +108,7 @@ public class CommitProcessorIT {
         // fragments survive
         org.junit.jupiter.api.Assertions.assertNotNull(view.getEvent());
         org.junit.jupiter.api.Assertions.assertNotNull(view.getRequest());
-        org.junit.jupiter.api.Assertions.assertNotNull(view.getReceipt());*/
+        org.junit.jupiter.api.Assertions.assertNotNull(view.getReceipt());
     }
 
     @Test
