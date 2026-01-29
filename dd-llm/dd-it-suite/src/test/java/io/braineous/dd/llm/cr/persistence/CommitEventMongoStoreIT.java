@@ -101,4 +101,5 @@ public class CommitEventMongoStoreIT {
 
         Console.log("CommitEventMongoStoreIT.clear_deletes_all", "count=" + count);
     }
+
 }

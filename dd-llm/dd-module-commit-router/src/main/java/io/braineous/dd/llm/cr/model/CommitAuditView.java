@@ -118,6 +118,13 @@ public class CommitAuditView {
         return t;
     }
 
+    public String safeCommitId() {
+        if (this.commitId == null) { return null; }
+        String t = this.commitId.trim();
+        if (t.isEmpty()) { return null; }
+        return t;
+    }
+
     // -------------------------
     // JSON
     // -------------------------
@@ -188,6 +195,83 @@ public class CommitAuditView {
     public String toJsonString() {
         return toJson().toString();
     }
+
+    public static CommitAuditView fromJson(com.google.gson.JsonObject json) {
+        if (json == null) {
+            return null;
+        }
+
+        String id = null;
+        try {
+            if (json.has("commitId") && !json.get("commitId").isJsonNull()) {
+                id = safe(json.get("commitId").getAsString());
+            }
+        } catch (RuntimeException re) { }
+
+        if (id == null) {
+            return null;
+        }
+
+        CommitEvent event = null;
+        CommitRequest request = null;
+        CommitReceipt receipt = null;
+
+        try {
+            if (json.has("event") && !json.get("event").isJsonNull()) {
+                com.google.gson.JsonElement el = json.get("event");
+                if (el != null && el.isJsonObject()) {
+                    event = CommitEvent.fromJson(el.getAsJsonObject());
+                }
+            }
+        } catch (RuntimeException re) { }
+
+        try {
+            if (json.has("request") && !json.get("request").isJsonNull()) {
+                com.google.gson.JsonElement el = json.get("request");
+                if (el != null && el.isJsonObject()) {
+                    request = CommitRequest.fromJson(el.getAsJsonObject());
+                }
+            }
+        } catch (RuntimeException re) { }
+
+        try {
+            if (json.has("receipt") && !json.get("receipt").isJsonNull()) {
+                com.google.gson.JsonElement el = json.get("receipt");
+                if (el != null && el.isJsonObject()) {
+                    receipt = CommitReceipt.fromJson(el.getAsJsonObject());
+                }
+            }
+        } catch (RuntimeException re) { }
+
+        // If all fragments are missing, treat as missing resource.
+        if (event == null && request == null && receipt == null) {
+            return null;
+        }
+
+        // Derive status/createdAt/why/message via factory (single source of truth).
+        return CommitAuditView.from(id, event, request, receipt);
+    }
+
+    public static CommitAuditView fromJsonString(String json) {
+        if (json == null) {
+            return null;
+        }
+        String t = json.trim();
+        if (t.isEmpty()) {
+            return null;
+        }
+
+        try {
+            com.google.gson.JsonElement el = com.google.gson.JsonParser.parseString(t);
+            if (el == null || !el.isJsonObject()) {
+                return null;
+            }
+            return fromJson(el.getAsJsonObject());
+        } catch (RuntimeException re) {
+            return null;
+        }
+    }
+
 }
 
 
