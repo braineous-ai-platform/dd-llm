@@ -18,8 +18,9 @@ public class CommitAuditViewTest {
     void status_missing_all_when_all_null() {
         CommitAuditView v = CommitAuditView.from("cr_1", null, null, null);
         assertNotNull(v);
-        assertEquals(CommitAuditStatus.MISSING_ALL, v.getStatus());
+        assertEquals(CommitAuditStatus.PENDING, v.getStatus());
     }
+
 
     @Test
     void status_pending_when_receipt_missing_but_some_data_present() {
@@ -79,5 +80,13 @@ public class CommitAuditViewTest {
         assertEquals("2026-01-28T10:00:00Z", v.getCreatedAt());
         assertEquals(CommitAuditStatus.PENDING, v.getStatus());
     }
+
+    @Test
+    void status_pending_when_receipt_missing_even_if_all_other_parts_null() {
+        CommitAuditView v = CommitAuditView.from("cr_1", null, null, null);
+        assertNotNull(v);
+        assertEquals(CommitAuditStatus.PENDING, v.getStatus());
+    }
+
 }
 

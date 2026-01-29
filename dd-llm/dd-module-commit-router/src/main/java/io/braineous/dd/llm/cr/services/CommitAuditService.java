@@ -26,14 +26,32 @@ public class CommitAuditService {
     }
 
     public CommitAuditView getAudit(String commitId) {
+
         String id = safe(commitId);
         if (id == null) {
             return null;
         }
 
-        CommitEvent event = eventStore.getEvent(id);
-        CommitRequest request = requestStore.getRequest(id);
-        CommitReceipt receipt = receiptStore.getReceipt(id);
+        CommitEvent event = null;
+        CommitRequest request = null;
+        CommitReceipt receipt = null;
+
+        try {
+            event = eventStore.getEvent(id);
+        } catch (RuntimeException re) { }
+
+        try {
+            request = requestStore.getRequest(id);
+        } catch (RuntimeException re) { }
+
+        try {
+            receipt = receiptStore.getReceipt(id);
+        } catch (RuntimeException re) { }
+
+        // If nothing exists, resource is missing => 404 upstream
+        if (event == null && request == null && receipt == null) {
+            return null;
+        }
 
         return CommitAuditView.from(id, event, request, receipt);
     }
@@ -49,3 +67,4 @@ public class CommitAuditService {
         return t;
     }
 }
+

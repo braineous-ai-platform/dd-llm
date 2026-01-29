@@ -32,12 +32,9 @@ public class CommitAuditResource {
             }
 
             CommitAuditView v = svc.getAudit(id);
-            if (v == null) {
-                // defensive: service returns null only on invalid
-                return badRequest("commitId required");
-            }
 
-            if (v.getStatus() == CommitAuditStatus.MISSING_ALL) {
+            // service must return null when nothing exists for this commitId
+            if (v == null) {
                 return notFound("commitId not found", id);
             }
 
@@ -48,6 +45,7 @@ public class CommitAuditResource {
             return systemError("system_error", re);
         }
     }
+
 
     // -------------------------
     // error helpers

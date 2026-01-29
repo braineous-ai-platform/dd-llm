@@ -65,17 +65,16 @@ public class CommitAuditServiceIT {
 
     @Test
     void getAudit_missing_all_returns_view_missing_all() {
+        Console.log("CAS_IT/missing_all", "start");
+
         CommitAuditView v = svc.getAudit("cr_missing");
 
-        assertNotNull(v);
-        assertEquals("cr_missing", v.getCommitId());
-        assertEquals(CommitAuditStatus.MISSING_ALL, v.getStatus());
-        assertNull(v.getEvent());
-        assertNull(v.getRequest());
-        assertNull(v.getReceipt());
+        // New aligned contract: if no fragments exist, audit resource is missing
+        assertNull(v);
 
-        Console.log("CommitAuditServiceIT.getAudit_missing_all", v.getStatus().name());
+        Console.log("CAS_IT/missing_all", "done");
     }
+
 
     @Test
     void getAudit_pending_when_event_or_request_present_but_receipt_missing() {

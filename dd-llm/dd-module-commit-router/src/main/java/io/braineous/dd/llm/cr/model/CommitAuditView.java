@@ -23,7 +23,12 @@ public class CommitAuditView {
     // Factory
     // -------------------------
 
-    public static CommitAuditView from(String commitId, CommitEvent event, CommitRequest request, CommitReceipt receipt) {
+    public static CommitAuditView from(
+            String commitId,
+            CommitEvent event,
+            CommitRequest request,
+            CommitReceipt receipt
+    ) {
         String id = safe(commitId);
         if (id == null) {
             return null;
@@ -36,7 +41,7 @@ public class CommitAuditView {
         v.setRequest(request);
         v.setReceipt(receipt);
 
-        // lift createdAt from event (best-effort)
+        // best-effort: attempt time
         if (event != null) {
             String ca = event.safeCreatedAt();
             if (ca != null) {
@@ -44,21 +49,21 @@ public class CommitAuditView {
             }
         }
 
-        // lift receipt truth surface
+        // receipt is the outcome truth surface
         if (receipt != null) {
             v.setWhyCode(receipt.getWhyCode());
             v.setMessage(safe(receipt.getMessage()));
         }
 
-        v.setStatus(resolveStatus(event, request, receipt));
+        v.setStatus(resolveStatus(receipt));
         return v;
     }
 
-    public static CommitAuditStatus resolveStatus(CommitEvent event, CommitRequest request, CommitReceipt receipt) {
-        if (event == null && request == null && receipt == null) {
-            return CommitAuditStatus.MISSING_ALL;
-        }
+    // -------------------------
+    // Status resolution
+    // -------------------------
 
+    public static CommitAuditStatus resolveStatus(CommitReceipt receipt) {
         if (receipt == null) {
             return CommitAuditStatus.PENDING;
         }
@@ -113,7 +118,10 @@ public class CommitAuditView {
         return t;
     }
 
-    //--------------------------------------
+    // -------------------------
+    // JSON
+    // -------------------------
+
     public com.google.gson.JsonObject toJson() {
         com.google.gson.JsonObject root = new com.google.gson.JsonObject();
 
@@ -139,19 +147,39 @@ public class CommitAuditView {
         }
 
         if (this.whyCode != null) {
-            root.add("whyCode", com.google.gson.JsonParser.parseString(this.whyCode.toJson()).getAsJsonObject());
+            root.add(
+                    "whyCode",
+                    com.google.gson.JsonParser
+                            .parseString(this.whyCode.toJson())
+                            .getAsJsonObject()
+            );
         }
 
         if (this.event != null) {
-            root.add("event", com.google.gson.JsonParser.parseString(this.event.toJsonString()).getAsJsonObject());
+            root.add(
+                    "event",
+                    com.google.gson.JsonParser
+                            .parseString(this.event.toJsonString())
+                            .getAsJsonObject()
+            );
         }
 
         if (this.request != null) {
-            root.add("request", com.google.gson.JsonParser.parseString(this.request.toJsonString()).getAsJsonObject());
+            root.add(
+                    "request",
+                    com.google.gson.JsonParser
+                            .parseString(this.request.toJsonString())
+                            .getAsJsonObject()
+            );
         }
 
         if (this.receipt != null) {
-            root.add("receipt", com.google.gson.JsonParser.parseString(this.receipt.toJsonString()).getAsJsonObject());
+            root.add(
+                    "receipt",
+                    com.google.gson.JsonParser
+                            .parseString(this.receipt.toJsonString())
+                            .getAsJsonObject()
+            );
         }
 
         return root;
@@ -160,6 +188,6 @@ public class CommitAuditView {
     public String toJsonString() {
         return toJson().toString();
     }
-
 }
+
 
