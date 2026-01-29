@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.persistence;
+package io.braineous.dd.llm.cr.persistence;
 
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.core.model.Why;
@@ -6,6 +6,7 @@ import io.braineous.dd.llm.cr.model.CommitReceipt;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import io.braineous.dd.llm.cr.persistence.CommitReceiptMongoStore;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

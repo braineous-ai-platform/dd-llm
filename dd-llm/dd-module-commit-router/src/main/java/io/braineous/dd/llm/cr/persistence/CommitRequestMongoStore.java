@@ -1,6 +1,7 @@
-package io.braineous.dd.llm.persistence;
+package io.braineous.dd.llm.cr.persistence;
 
-import io.braineous.dd.llm.cr.model.CommitEvent;
+import com.mongodb.client.model.Filters;
+import io.braineous.dd.llm.cr.model.CommitRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -8,24 +9,28 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.ReplaceOptions;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class CommitEventMongoStore {
+@ApplicationScoped
+public class CommitRequestMongoStore {
 
     public static final String DEFAULT_DB_NAME = "cgo";
-    public static final String DEFAULT_COLLECTION_NAME = "cr_commit_events";
+    public static final String DEFAULT_COLLECTION_NAME = "cr_commit_requests";
 
     private MongoClient mongoClient;
     private String dbName;
     private String collectionName;
 
-    public CommitEventMongoStore(MongoClient mongoClient) {
+    @Inject
+    public CommitRequestMongoStore(MongoClient mongoClient) {
         this(mongoClient, DEFAULT_DB_NAME, DEFAULT_COLLECTION_NAME);
     }
 
-    public CommitEventMongoStore(MongoClient mongoClient, String dbName, String collectionName) {
+    public CommitRequestMongoStore(MongoClient mongoClient, String dbName, String collectionName) {
         if (mongoClient == null) {
             throw new IllegalArgumentException("mongoClient cannot be null");
         }
@@ -44,52 +49,51 @@ public class CommitEventMongoStore {
     // Orchestrator-facing ops
     // -------------------------
 
-    public CommitEvent getEvent(String commitId) {
+    public CommitRequest getRequest(String commitId) {
         String id = safe(commitId);
         if (id == null) {
             return null;
         }
 
-        Document doc = getCollection().find(eq("commitId", id)).first();
+        Document doc = getCollection().find(Filters.eq("commitId", id)).first();
         if (doc == null) {
             return null;
         }
 
-        Object raw = doc.get("event");
+        Object raw = doc.get("request");
         if (!(raw instanceof Document)) {
             return null;
         }
 
-        Document eventDoc = (Document) raw;
+        Document requestDoc = (Document) raw;
 
         try {
-            JsonElement el = JsonParser.parseString(eventDoc.toJson());
+            JsonElement el = JsonParser.parseString(requestDoc.toJson());
             if (el == null || !el.isJsonObject()) {
                 return null;
             }
-            return CommitEvent.fromJson(el.getAsJsonObject());
+            return CommitRequest.fromJson(el.getAsJsonObject());
         } catch (RuntimeException re) {
             return null;
         }
     }
 
-    public void upsertEvent(CommitEvent event) {
-        if (event == null) {
-            return;
-        }
-
-        String id = event.safeCommitId();
+    public void upsertRequest(String commitId, CommitRequest request) {
+        String id = safe(commitId);
         if (id == null) {
             return;
         }
+        if (request == null) {
+            return;
+        }
 
-        JsonObject ej = event.toJson();
+        JsonObject rj = request.toJson();
 
         Document doc = new Document();
         doc.put("commitId", id);
-        doc.put("event", Document.parse(ej.toString()));
+        doc.put("request", Document.parse(rj.toString()));
 
-        getCollection().replaceOne(eq("commitId", id), doc, new ReplaceOptions().upsert(true));
+        getCollection().replaceOne(Filters.eq("commitId", id), doc, new ReplaceOptions().upsert(true));
     }
 
     public void clear() {

@@ -1,6 +1,7 @@
-package io.braineous.dd.llm.persistence;
+package io.braineous.dd.llm.cr.persistence;
 
-import io.braineous.dd.llm.cr.model.CommitReceipt;
+import com.mongodb.client.model.Filters;
+import io.braineous.dd.llm.cr.model.CommitEvent;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -8,24 +9,28 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.ReplaceOptions;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class CommitReceiptMongoStore {
+@ApplicationScoped
+public class CommitEventMongoStore {
 
     public static final String DEFAULT_DB_NAME = "cgo";
-    public static final String DEFAULT_COLLECTION_NAME = "cr_commit_receipts";
+    public static final String DEFAULT_COLLECTION_NAME = "cr_commit_events";
 
     private MongoClient mongoClient;
     private String dbName;
     private String collectionName;
 
-    public CommitReceiptMongoStore(MongoClient mongoClient) {
+    @Inject
+    public CommitEventMongoStore(MongoClient mongoClient) {
         this(mongoClient, DEFAULT_DB_NAME, DEFAULT_COLLECTION_NAME);
     }
 
-    public CommitReceiptMongoStore(MongoClient mongoClient, String dbName, String collectionName) {
+    public CommitEventMongoStore(MongoClient mongoClient, String dbName, String collectionName) {
         if (mongoClient == null) {
             throw new IllegalArgumentException("mongoClient cannot be null");
         }
@@ -44,52 +49,52 @@ public class CommitReceiptMongoStore {
     // Orchestrator-facing ops
     // -------------------------
 
-    public CommitReceipt getReceipt(String commitId) {
+    public CommitEvent getEvent(String commitId) {
         String id = safe(commitId);
         if (id == null) {
             return null;
         }
 
-        Document doc = getCollection().find(eq("commitId", id)).first();
+        Document doc = getCollection().find(Filters.eq("commitId", id)).first();
         if (doc == null) {
             return null;
         }
 
-        Object raw = doc.get("receipt");
+        Object raw = doc.get("event");
         if (!(raw instanceof Document)) {
             return null;
         }
 
-        Document receiptDoc = (Document) raw;
+        Document eventDoc = (Document) raw;
 
         try {
-            JsonElement el = JsonParser.parseString(receiptDoc.toJson());
+            JsonElement el = JsonParser.parseString(eventDoc.toJson());
             if (el == null || !el.isJsonObject()) {
                 return null;
             }
-            return CommitReceipt.fromJson(el.getAsJsonObject());
+            return CommitEvent.fromJson(el.getAsJsonObject());
         } catch (RuntimeException re) {
             return null;
         }
     }
 
-    public void upsertReceipt(CommitReceipt receipt) {
-        if (receipt == null) {
+    public void upsertEvent(CommitEvent event) {
+        if (event == null) {
             return;
         }
 
-        String id = safeCommitId(receipt);
+        String id = event.safeCommitId();
         if (id == null) {
             return;
         }
 
-        JsonObject rj = receipt.toJson();
+        JsonObject ej = event.toJson();
 
         Document doc = new Document();
         doc.put("commitId", id);
-        doc.put("receipt", Document.parse(rj.toString()));
+        doc.put("event", Document.parse(ej.toString()));
 
-        getCollection().replaceOne(eq("commitId", id), doc, new ReplaceOptions().upsert(true));
+        getCollection().replaceOne(Filters.eq("commitId", id), doc, new ReplaceOptions().upsert(true));
     }
 
     public void clear() {
@@ -115,12 +120,5 @@ public class CommitReceiptMongoStore {
         }
         return t;
     }
-
-    private String safeCommitId(CommitReceipt r) {
-        if (r == null) {
-            return null;
-        }
-        String id = r.getCommitId();
-        return safe(id);
-    }
 }
+
