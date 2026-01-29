@@ -190,4 +190,47 @@ public class CommitEventTest {
 
         Console.log("CE_UT/fromJson_bad_request_shape", "done");
     }
+
+    @Test
+    void safeAttempt_returns_zero_when_unset_or_non_positive() {
+        Console.log("CE_UT/safeAttempt", "start");
+
+        CommitEvent e = new CommitEvent();
+
+        e.setAttempt(0);
+        assertEquals(0, e.safeAttempt());
+
+        e.setAttempt(-1);
+        assertEquals(0, e.safeAttempt());
+
+        e.setAttempt(1);
+        assertEquals(1, e.safeAttempt());
+
+        e.setAttempt(7);
+        assertEquals(7, e.safeAttempt());
+
+        Console.log("CE_UT/safeAttempt", "done");
+    }
+
+    @Test
+    void json_roundtrip_preserves_attempt() {
+        Console.log("CE_UT/json_roundtrip_attempt", "start");
+
+        CommitEvent e = new CommitEvent();
+        e.setCommitId("ing_123");
+        e.setAttempt(3);
+        e.setCreatedAt("2026-01-27T01:02:03Z");
+        e.setRequest(null);
+
+        String s = e.toJsonString();
+        CommitEvent loaded = CommitEvent.fromJsonString(s);
+
+        assertNotNull(loaded);
+        assertEquals("ing_123", loaded.getCommitId());
+        assertEquals("2026-01-27T01:02:03Z", loaded.getCreatedAt());
+        assertEquals(3, loaded.getAttempt());
+
+        Console.log("CE_UT/json_roundtrip_attempt", "done");
+    }
+
 }
