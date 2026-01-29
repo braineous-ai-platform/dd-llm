@@ -104,29 +104,6 @@ public class CommitReceiptTest {
     }
 
     @Test
-    void fromJson_handles_bad_whyCode_shape_without_throwing() {
-        Console.log("CRR_UT/fromJson_bad_whyCode", "start");
-
-        JsonObject json = new JsonObject();
-        json.addProperty("accepted", false);
-
-        JsonObject bad = new JsonObject();
-        // missing reason/details, or wrong types
-        bad.addProperty("reason", 123);
-        bad.add("details", null);
-        json.add("whyCode", bad);
-
-        CommitReceipt r = CommitReceipt.fromJson(json);
-
-        assertNotNull(r);
-        assertFalse(r.isAccepted());
-        // parsing whyCode may fail -> should stay null
-        assertNull(r.getWhyCode());
-
-        Console.log("CRR_UT/fromJson_bad_whyCode", "done");
-    }
-
-    @Test
     void toJson_includes_whyCode_as_object_when_present() {
         Console.log("CRR_UT/toJson_includes_whyCode", "start");
 
@@ -175,5 +152,55 @@ public class CommitReceiptTest {
 
         Console.log("CRR_UT/json_roundtrip_with_why", "done");
     }
+
+    @Test
+    void fromJson_parses_whyCode_when_reason_present_even_if_details_missing() {
+        Console.log("CRR_UT/fromJson_whyCode_missing_details", "start");
+
+        JsonObject json = new JsonObject();
+        json.addProperty("accepted", false);
+
+        JsonObject wc = new JsonObject();
+        wc.addProperty("reason", "SYSTEM_FAIL");
+        // details intentionally missing
+        json.add("whyCode", wc);
+
+        CommitReceipt r = CommitReceipt.fromJson(json);
+
+        assertNotNull(r);
+        assertFalse(r.isAccepted());
+
+        assertNotNull(r.getWhyCode());
+        assertEquals("SYSTEM_FAIL", r.getWhyCode().getReason());
+        assertNull(r.getWhyCode().getDetails());
+
+        Console.log("CRR_UT/fromJson_whyCode_missing_details", "done");
+    }
+
+    @Test
+    void fromJson_handles_bad_whyCode_shape_without_throwing() {
+        Console.log("CRR_UT/fromJson_bad_whyCode", "start");
+
+        JsonObject json = new JsonObject();
+        json.addProperty("accepted", false);
+
+        JsonObject bad = new JsonObject();
+        // bad shapes: reason is NOT a string, details null
+        bad.addProperty("reason", 123);
+        bad.add("details", null);
+        json.add("whyCode", bad);
+
+        CommitReceipt r = CommitReceipt.fromJson(json);
+
+        assertNotNull(r);
+        assertFalse(r.isAccepted());
+
+        // reason is not a string -> whyCode must be ignored
+        assertNull(r.getWhyCode());
+
+        Console.log("CRR_UT/fromJson_bad_whyCode", "done");
+    }
+
+
 
 }
