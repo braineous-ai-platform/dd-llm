@@ -25,7 +25,6 @@ public class CommitAuditViewTest {
     void status_pending_when_receipt_missing_but_some_data_present() {
         CommitRequest r = new CommitRequest();
         r.setQueryKind("qk");
-        r.setDecision("ALLOW");
 
         CommitAuditView v = CommitAuditView.from("cr_2", null, r, null);
 

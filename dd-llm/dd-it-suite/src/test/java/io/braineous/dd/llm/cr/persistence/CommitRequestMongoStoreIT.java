@@ -47,9 +47,7 @@ public class CommitRequestMongoStoreIT {
         CommitRequest r = new CommitRequest();
         r.setQueryKind("policygate.v1");
         r.setCatalogVersion("v1");
-        r.setDecision("ALLOW");
         r.setActor("manual");
-        r.setRequestId("req-777");
 
         List<String> notes = new ArrayList<String>();
         notes.add(" first ");
@@ -70,9 +68,7 @@ public class CommitRequestMongoStoreIT {
         assertNotNull(got);
         assertEquals("policygate.v1", got.getQueryKind());
         assertEquals("v1", got.getCatalogVersion());
-        assertEquals("ALLOW", got.getDecision());
         assertEquals("manual", got.getActor());
-        assertEquals("req-777", got.getRequestId());
 
         assertNotNull(got.getNotes());
         // your toJson() filters blanks/nulls; fromJson reads back only the kept ones
@@ -110,11 +106,9 @@ public class CommitRequestMongoStoreIT {
     void clear_deletes_all() {
         CommitRequest r1 = new CommitRequest();
         r1.setQueryKind("q1");
-        r1.setDecision("ALLOW");
 
         CommitRequest r2 = new CommitRequest();
         r2.setQueryKind("q2");
-        r2.setDecision("DENY");
 
         store.upsertRequest("cr_a", r1);
         store.upsertRequest("cr_b", r2);

@@ -104,9 +104,7 @@ public class CommitAuditServiceIT {
         CommitRequest req = new CommitRequest();
         req.setQueryKind("policygate.v1");
         req.setCatalogVersion("v1");
-        req.setDecision("ALLOW");
         req.setActor("manual");
-        req.setRequestId("req-777");
 
         List<String> notes = new ArrayList<String>();
         notes.add("first");

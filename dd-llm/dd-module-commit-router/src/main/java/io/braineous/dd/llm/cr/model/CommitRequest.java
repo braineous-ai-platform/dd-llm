@@ -12,10 +12,8 @@ import java.util.Map;
 public class CommitRequest {
 
     private String queryKind;          // which catalog entry / query kind this decision is for
-    private String catalogVersion;     // optional, but helps replay/debug deterministically
-    private String decision;           // ALLOW / DENY / TRANSFORM (string for now)
+    private String catalogVersion;
     private String actor;              // manual user / system (string)
-    private String requestId;          // upstream correlation id (optional)
     private List<String> notes;        // optional human notes
     private JsonObject payload;        // the thing being committed (manual loop can carry normalized output)
 
@@ -28,14 +26,9 @@ public class CommitRequest {
     public String getCatalogVersion() { return catalogVersion; }
     public void setCatalogVersion(String catalogVersion) { this.catalogVersion = catalogVersion; }
 
-    public String getDecision() { return decision; }
-    public void setDecision(String decision) { this.decision = decision; }
 
     public String getActor() { return actor; }
     public void setActor(String actor) { this.actor = actor; }
-
-    public String getRequestId() { return requestId; }
-    public void setRequestId(String requestId) { this.requestId = requestId; }
 
     public List<String> getNotes() { return notes; }
     public void setNotes(List<String> notes) { this.notes = notes; }
@@ -61,23 +54,9 @@ public class CommitRequest {
         return t;
     }
 
-    public String safeDecision() {
-        if (this.decision == null) { return null; }
-        String t = this.decision.trim();
-        if (t.isEmpty()) { return null; }
-        return t;
-    }
-
     public String safeActor() {
         if (this.actor == null) { return null; }
         String t = this.actor.trim();
-        if (t.isEmpty()) { return null; }
-        return t;
-    }
-
-    public String safeRequestId() {
-        if (this.requestId == null) { return null; }
-        String t = this.requestId.trim();
         if (t.isEmpty()) { return null; }
         return t;
     }
@@ -100,14 +79,9 @@ public class CommitRequest {
         String v = safeCatalogVersion();
         if (v != null) { root.addProperty("catalogVersion", v); }
 
-        String d = safeDecision();
-        if (d != null) { root.addProperty("decision", d); }
 
         String a = safeActor();
         if (a != null) { root.addProperty("actor", a); }
-
-        String rid = safeRequestId();
-        if (rid != null) { root.addProperty("requestId", rid); }
 
         JsonArray arr = new JsonArray();
         List<String> list = safeNotes();
@@ -144,17 +118,11 @@ public class CommitRequest {
             try { r.setCatalogVersion(json.get("catalogVersion").getAsString()); } catch (RuntimeException re) { }
         }
 
-        if (json.has("decision") && !json.get("decision").isJsonNull()) {
-            try { r.setDecision(json.get("decision").getAsString()); } catch (RuntimeException re) { }
-        }
 
         if (json.has("actor") && !json.get("actor").isJsonNull()) {
             try { r.setActor(json.get("actor").getAsString()); } catch (RuntimeException re) { }
         }
 
-        if (json.has("requestId") && !json.get("requestId").isJsonNull()) {
-            try { r.setRequestId(json.get("requestId").getAsString()); } catch (RuntimeException re) { }
-        }
 
         if (json.has("notes") && !json.get("notes").isJsonNull()) {
             try {
@@ -205,32 +173,6 @@ public class CommitRequest {
     }
 
     //----------------------------------------
-    public static String computeCommitId(CommitRequest r) {
-        String canonical = canonicalCommitString(r);
-        byte[] hash = sha256Bytes(canonical);
-        return "cr_" + toHex(hash);
-    }
-
-
-    public static String canonicalCommitString(CommitRequest r) {
-        String qk = safeTrim(r != null ? r.safeQueryKind() : null);
-        String cv = safeTrim(r != null ? r.safeCatalogVersion() : null);
-        String d  = safeTrim(r != null ? r.safeDecision() : null);
-        String rid = safeTrim(r != null ? r.safeRequestId() : null);
-
-        String payload = "";
-        if (r != null && r.getPayload() != null) {
-            payload = canonicalJsonString(r.getPayload());
-        }
-
-        // Order is part of the contract. Do not change.
-        return "queryKind=" + qk
-                + "|catalogVersion=" + cv
-                + "|decision=" + d
-                + "|requestId=" + rid
-                + "|payload=" + payload;
-    }
-
     private static String safeTrim(String s) {
         if (s == null) {
             return "";

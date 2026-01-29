@@ -54,7 +54,6 @@ public class CommitEventTest {
 
         CommitRequest r = new CommitRequest();
         r.setQueryKind("  user.search  ");
-        r.setDecision("  ALLOW  ");
         r.setNotes(java.util.Arrays.asList("  a  ", " ", null));
 
         JsonObject payload = new JsonObject();
@@ -73,7 +72,6 @@ public class CommitEventTest {
 
         JsonObject rj = json.get("request").getAsJsonObject();
         assertEquals("user.search", rj.get("queryKind").getAsString());
-        assertEquals("ALLOW", rj.get("decision").getAsString());
 
         Console.log("CE_UT/toJson_omits_blanks", "done");
     }
@@ -89,9 +87,7 @@ public class CommitEventTest {
         CommitRequest r = new CommitRequest();
         r.setQueryKind("  user.search  ");
         r.setCatalogVersion("  v1  ");
-        r.setDecision("  ALLOW ");
         r.setActor("  sohil ");
-        r.setRequestId("  rid  ");
         r.setNotes(java.util.Arrays.asList("  a  ", " ", null, "b"));
 
         JsonObject payload = new JsonObject();
@@ -113,9 +109,7 @@ public class CommitEventTest {
         assertNotNull(loaded.getRequest());
         assertEquals("user.search", loaded.getRequest().safeQueryKind());
         assertEquals("v1", loaded.getRequest().safeCatalogVersion());
-        assertEquals("ALLOW", loaded.getRequest().safeDecision());
         assertEquals("sohil", loaded.getRequest().safeActor());
-        assertEquals("rid", loaded.getRequest().safeRequestId());
 
         assertNotNull(loaded.getRequest().getNotes());
         assertEquals(2, loaded.getRequest().getNotes().size());
