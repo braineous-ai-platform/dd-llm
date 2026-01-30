@@ -3,17 +3,18 @@ package io.braineous.dd.llm.pg.services;
 import ai.braineous.rag.prompt.cgo.prompt.CatalogEntry;
 import ai.braineous.rag.prompt.cgo.prompt.CatalogMongoStore;
 import ai.braineous.rag.prompt.observe.Console;
+import com.google.gson.JsonObject;
 import com.mongodb.client.MongoClient;
+import io.braineous.dd.llm.cr.model.CommitRequest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 public class PolicyGateOrchestratorIT {
@@ -364,6 +365,105 @@ public class PolicyGateOrchestratorIT {
         }
 
         Console.log("PG_ORCH_IT/read_interleaving_loop", "done");
+    }
+
+    @Test
+    void toCommitRequest_nullEntry_returnsNull() {
+        CommitRequest r = PolicyGateOrchestrator.toCommitRequest(null, new JsonObject(), "HTIL_USER", null);
+        assertNull(r);
+    }
+
+    @Test
+    void toCommitRequest_maps_queryKind_and_catalogVersion() {
+        CatalogEntry e = new CatalogEntry();
+        e.setQueryKind("  QK_A  ");
+        e.setCatalogVersion("  1.0.0  ");
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("x", "y");
+
+        CommitRequest r = PolicyGateOrchestrator.toCommitRequest(e, payload, "HTIL_USER", null);
+
+        assertNotNull(r);
+        assertEquals("QK_A", r.getQueryKind());
+        assertEquals("1.0.0", r.getCatalogVersion());
+    }
+
+    @Test
+    void toCommitRequest_trims_actor_and_ignores_blank_actor() {
+        CatalogEntry e = new CatalogEntry();
+        e.setQueryKind("QK");
+        e.setCatalogVersion("1");
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("x", "y");
+
+        CommitRequest r1 = PolicyGateOrchestrator.toCommitRequest(e, payload, "  AUTO_RULES  ", null);
+        assertNotNull(r1);
+        assertEquals("AUTO_RULES", r1.getActor());
+
+        CommitRequest r2 = PolicyGateOrchestrator.toCommitRequest(e, payload, "   ", null);
+        assertNotNull(r2);
+        assertNull(r2.getActor());
+    }
+
+    @Test
+    void toCommitRequest_sets_notes_when_provided() {
+        CatalogEntry e = new CatalogEntry();
+        e.setQueryKind("QK");
+        e.setCatalogVersion("1");
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("x", "y");
+
+        List<String> notes = new ArrayList<String>();
+        notes.add("note1");
+        notes.add("  note2  ");
+
+        CommitRequest r = PolicyGateOrchestrator.toCommitRequest(e, payload, "HTIL_USER", notes);
+
+        assertNotNull(r);
+        assertNotNull(r.getNotes());
+        assertEquals(2, r.getNotes().size());
+        assertEquals("note1", r.getNotes().get(0));
+        assertEquals("  note2  ", r.getNotes().get(1)); // mapper does not sanitize notes list itself
+    }
+
+    @Test
+    void toCommitRequest_deepCopies_payload() {
+        CatalogEntry e = new CatalogEntry();
+        e.setQueryKind("QK");
+        e.setCatalogVersion("1");
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("x", "y");
+
+        CommitRequest r = PolicyGateOrchestrator.toCommitRequest(e, payload, "HTIL_USER", null);
+
+        assertNotNull(r);
+        assertNotNull(r.getPayload());
+        assertEquals("y", r.getPayload().get("x").getAsString());
+
+        // mutate original payload after mapping
+        payload.addProperty("x", "changed");
+
+        // mapped payload must remain unchanged
+        assertEquals("y", r.getPayload().get("x").getAsString());
+    }
+
+    @Test
+    void toCommitRequest_doesNotSet_commitId() {
+        CatalogEntry e = new CatalogEntry();
+        e.setQueryKind("QK");
+        e.setCatalogVersion("1");
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("x", "y");
+
+        CommitRequest r = PolicyGateOrchestrator.toCommitRequest(e, payload, "HTIL_USER", null);
+
+        assertNotNull(r);
+        assertNull(r.getCommitId());
     }
 
 }
