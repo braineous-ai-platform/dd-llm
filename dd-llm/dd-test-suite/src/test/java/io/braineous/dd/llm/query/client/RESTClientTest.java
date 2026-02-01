@@ -1,10 +1,13 @@
 package io.braineous.dd.llm.query.client;
 
+import ai.braineous.cgo.llm.OpenAILlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.Edge;
 import ai.braineous.rag.prompt.cgo.api.Fact;
+import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import ai.braineous.rag.prompt.models.cgo.graph.BindResult;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.models.cgo.graph.Input;
+import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -43,7 +46,12 @@ public class RESTClientTest {
         Input input = new Input(aus, dfw, flight);
         BindResult firstBind = graphBuilder.bind(input, null);
 
+        // v1: adapter config placeholder (keep stable shape, no assumptions)
+        JsonObject config = new JsonObject();
+        LlmAdapter adapter = new OpenAILlmAdapter(config);
+
         client.query(
+                adapter,
                queryKind,
                query,
                anchor,

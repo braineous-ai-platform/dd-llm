@@ -9,26 +9,63 @@ import ai.braineous.rag.prompt.observe.Console;
 import java.util.List;
 
 public class RESTClient implements QueryClient{
-    public static final String version = "v1";
+    public static final String VERSION = "v1";
 
     @Override
-    public QueryResult query(String queryKind, String query, String fact, List<String> relatedFacts){
-        if(queryKind == null || queryKind.trim().isBlank() ||
-                query == null || query.trim().isBlank()
-        ){
+    public QueryResult query(LlmAdapter llmAdapter,
+            String queryKind,
+                             String query,
+                             String fact,
+                             List<String> relatedFacts) {
+
+        if (queryKind == null || queryKind.trim().isEmpty()) {
+            return null;
+        }
+        if (query == null || query.trim().isEmpty()) {
+            return null;
+        }
+        if (fact == null || fact.trim().isEmpty()) {
+            return null;
+        }
+        if(llmAdapter == null){
             return null;
         }
 
-        GraphBuilder graphBuilder = GraphBuilder.getInstance();
-        GraphSnapshot snapshot = graphBuilder.snapshot();
-        GraphContextBuilder builder = new GraphContextBuilder();
-        Fact anchor = snapshot.findFact(fact);
+        List<String> safeRelatedFacts = relatedFacts;
+        if (safeRelatedFacts == null) {
+            safeRelatedFacts = java.util.Collections.emptyList();
+        }
 
-        Meta meta = new Meta(version, queryKind, queryKind);
+        GraphBuilder graphBuilder = GraphBuilder.getInstance();
+        if (graphBuilder == null) {
+            return null;
+        }
+
+        GraphSnapshot snapshot = graphBuilder.snapshot();
+        if (snapshot == null) {
+            return null;
+        }
+
+        Fact anchor = snapshot.findFact(fact);
+        if (anchor == null) {
+            return null;
+        }
+        if (anchor.getId() == null || anchor.getId().trim().isEmpty()) {
+            return null;
+        }
+
+        Meta meta = new Meta(VERSION, queryKind, queryKind);
 
         ValidateTask task = new ValidateTask(query, anchor.getId());
+        if (task == null) {
+            return null;
+        }
 
-        GraphContext context = builder.buildContext(snapshot, anchor, relatedFacts);
+        GraphContextBuilder builder = new GraphContextBuilder();
+        GraphContext context = builder.buildContext(snapshot, anchor, safeRelatedFacts);
+        if (context == null) {
+            return null;
+        }
 
         QueryRequest request = QueryRequests.validateTask(
                 meta,
@@ -37,13 +74,21 @@ public class RESTClient implements QueryClient{
                 anchor.getId()
         );
 
-        if(request == null){
+        if (request == null) {
             return null;
         }
 
-        //do the query orchestration to cgo -> llm-adapter
         Console.log("__request_debug____", request.toJson().toString());
 
-        return null;
+        //integrate with QueryOrchestrator end-to-end, return the result
+        QueryOrchestrator orch = new QueryOrchestrator();
+        request.setAdapter(llmAdapter);
+        QueryResult result = orch.execute(request);
+        if(result == null){
+            return null;
+        }
+
+        return result;
     }
+
 }

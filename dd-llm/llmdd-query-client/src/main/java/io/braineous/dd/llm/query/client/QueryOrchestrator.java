@@ -6,9 +6,7 @@ import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import io.braineous.dd.llm.core.model.Why;
-import jakarta.enterprise.context.ApplicationScoped;
 
-@ApplicationScoped
 public class QueryOrchestrator {
 
     private static final String ID_PREFIX = "DD-LLM-QUERYORCH";
