@@ -1,8 +1,9 @@
-package io.braineous.dd.llm.query.model;
+package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
 import io.braineous.dd.llm.core.model.Why;
+import io.braineous.dd.llm.query.client.QueryResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

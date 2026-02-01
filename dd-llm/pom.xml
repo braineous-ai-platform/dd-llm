@@ -6,6 +6,7 @@
   <packaging>pom</packaging>
   <modules>
     <!--<module>dd-module-core</module>-->
+    <module>llmdd-query-client</module>
     <module>dd-module-core</module>
     <module>dd-module-policygate</module>
     <module>dd-module-commit-router</module>

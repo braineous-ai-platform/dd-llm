@@ -1,11 +1,10 @@
-package io.braineous.dd.llm.query.services;
+package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
-import io.braineous.dd.llm.query.model.QueryResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

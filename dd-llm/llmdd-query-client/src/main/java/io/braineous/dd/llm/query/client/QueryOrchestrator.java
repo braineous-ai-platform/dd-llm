@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.query.services;
+package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.prompt.LlmClient;
@@ -6,7 +6,6 @@ import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import io.braineous.dd.llm.core.model.Why;
-import io.braineous.dd.llm.query.model.QueryResult;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -29,8 +28,10 @@ public class QueryOrchestrator {
         this(new CgoQueryPipeline(new PromptBuilder(), llmClient));
     }
 
+
+
     // UT seam (boring + legal)
-    QueryOrchestrator(CgoQueryPipeline pipeline) {
+    public QueryOrchestrator(CgoQueryPipeline pipeline) {
         if (pipeline == null) {
             throw new IllegalArgumentException("pipeline cannot be null");
         }
@@ -55,4 +56,3 @@ public class QueryOrchestrator {
         return QueryResult.ok(request.toJson(), queryExecution.toJson());
     }
 }
-

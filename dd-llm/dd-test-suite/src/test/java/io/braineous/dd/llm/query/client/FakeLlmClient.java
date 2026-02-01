@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.query.services;
+package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import ai.braineous.rag.prompt.cgo.prompt.LlmClient;

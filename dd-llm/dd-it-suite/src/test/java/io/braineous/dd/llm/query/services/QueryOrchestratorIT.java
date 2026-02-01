@@ -9,7 +9,8 @@ import ai.braineous.rag.prompt.cgo.api.*;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 
 import com.google.gson.JsonObject;
-import io.braineous.dd.llm.query.model.QueryResult;
+import io.braineous.dd.llm.query.client.QueryOrchestrator;
+import io.braineous.dd.llm.query.client.QueryResult;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 

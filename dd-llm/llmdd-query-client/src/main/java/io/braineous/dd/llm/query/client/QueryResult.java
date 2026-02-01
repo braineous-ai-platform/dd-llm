@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.query.model;
+package io.braineous.dd.llm.query.client;
 
 import com.google.gson.JsonObject;
 import io.braineous.dd.llm.core.model.Why;
@@ -38,7 +38,7 @@ public class QueryResult {
                 // convert to clean failure result (DLQ-friendly, no throw)
                 this.requestJson = null;
                 this.ok = false;
-                this.why = new Why(WHY_CODE_NULL_EVENT, WHY_MSG_NULL_EVENT);
+                this.why = new Why(WHY_CODE_NULL_EVENT, WHY_CODE_NULL_EVENT);
                 return;
             }
             this.requestJson = requestJson;
@@ -241,4 +241,3 @@ public class QueryResult {
 
 
 }
-
