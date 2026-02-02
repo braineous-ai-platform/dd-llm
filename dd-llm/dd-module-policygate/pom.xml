@@ -44,6 +44,11 @@
       <artifactId>cgo-core</artifactId>
       <version>1.0.1</version>
     </dependency>
+    <dependency>
+      <groupId>io.github.braineous-ai-platform</groupId>
+      <artifactId>cgo-history</artifactId>
+      <version>1.0.1</version>
+    </dependency>
 
     <dependency>
       <groupId>io.github.braineous-ai-platform</groupId>

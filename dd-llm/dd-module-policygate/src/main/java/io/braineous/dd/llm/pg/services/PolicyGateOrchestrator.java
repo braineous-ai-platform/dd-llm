@@ -1,5 +1,6 @@
 package io.braineous.dd.llm.pg.services;
 
+import ai.braineous.cgo.history.MongoHistoryStore;
 import ai.braineous.rag.prompt.cgo.prompt.CatalogEntry;
 import ai.braineous.rag.prompt.cgo.prompt.CatalogMongoStore;
 import ai.braineous.rag.prompt.cgo.prompt.CatalogOrchestrator;
@@ -8,6 +9,8 @@ import com.google.gson.JsonObject;
 import com.mongodb.client.MongoClient;
 
 import io.braineous.dd.llm.cr.model.CommitRequest;
+import io.braineous.dd.llm.pg.model.ExecutionView;
+import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +24,8 @@ public class PolicyGateOrchestrator {
 
     private CatalogOrchestrator orch;
 
+    private MongoHistoryStore historyStore;
+
     public PolicyGateOrchestrator() {
     }
 
@@ -28,9 +33,26 @@ public class PolicyGateOrchestrator {
     public void start(){
         CatalogMongoStore store = new CatalogMongoStore(this.mongoClient);
         this.orch = new CatalogOrchestrator(store);
+
+        historyStore = new MongoHistoryStore(this.mongoClient);
     }
 
-    //-----------------READ_THE_CATALOG---------------
+    //---TODO---EXECUTE---------------------------------------------------
+    public ExecutionView getExecutions(String queryKind){
+
+        return null;
+    }
+
+
+    public PolicyGateResult approve(String queryKind, String executionId){
+        return null;
+    }
+
+    public PolicyGateResult reject(String queryKind, String executionId){
+        return null;
+    }
+
+    //-----------------DEPRECATE_NOT_EXPOSE_READ_THE_CATALOG---------------
     public CatalogSnapshot findCatalogSnapshot(String queryKind){
         CatalogSnapshot snapshot = orch.resolveSnapshot(queryKind);
         return snapshot;
@@ -47,10 +69,6 @@ public class PolicyGateOrchestrator {
         }
         return this.orch.getEntry(queryKind);
     }
-
-
-    //---TODO---EXECUTE-----------------------------------
-
 
 
     //-----------helpers-----------------------------------
