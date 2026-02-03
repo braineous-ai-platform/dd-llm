@@ -1,0 +1,65 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: dd-llm-mongo
+    restart: unless-stopped
+    ports:
+      - "27018:27017"   # optional (host tooling)
+    volumes:
+      - dd_llm_mongo_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--quiet", "mongodb://localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 }).ok" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    expose:
+      - "2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"   # optional (host tooling)
+
+  dd-pack:
+    build:
+      context: ./dd-pack
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      - QUARKUS_HTTP_PORT=8080
+      - QUARKUS_MONGODB_CONNECTION_STRING=mongodb://mongo:27017/cgo
+      - CGO_MONGODB_URI=${QUARKUS_MONGODB_CONNECTION_STRING}
+      - DD_PORT=8080
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DD_CONFIG_PATH=/dd-default.properties
+    volumes:
+      - ./dd-default-docker.properties:/dd-default.properties:ro
+    depends_on:
+      mongo:
+        condition: service_started
+    ports:
+      - "8080:8080"
+
+volumes:
+  dd_llm_mongo_data:

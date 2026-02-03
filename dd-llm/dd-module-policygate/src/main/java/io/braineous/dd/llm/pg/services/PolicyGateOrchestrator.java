@@ -21,9 +21,6 @@ public class PolicyGateOrchestrator {
     private static final String DEFAULT_ACTOR = "policygate";
 
     @Inject
-    MongoClient mongoClient;
-
-    @Inject
     private MongoHistoryStore historyStore;
 
     @Inject

@@ -27,22 +27,9 @@ public class CommitReceiptMongoStore {
 
     @Inject
     public CommitReceiptMongoStore(MongoClient mongoClient) {
-        this(mongoClient, DEFAULT_DB_NAME, DEFAULT_COLLECTION_NAME);
-    }
-
-    public CommitReceiptMongoStore(MongoClient mongoClient, String dbName, String collectionName) {
-        if (mongoClient == null) {
-            throw new IllegalArgumentException("mongoClient cannot be null");
-        }
-        if (dbName == null || dbName.trim().isEmpty()) {
-            throw new IllegalArgumentException("dbName cannot be null/empty");
-        }
-        if (collectionName == null || collectionName.trim().isEmpty()) {
-            throw new IllegalArgumentException("collectionName cannot be null/empty");
-        }
         this.mongoClient = mongoClient;
-        this.dbName = dbName;
-        this.collectionName = collectionName;
+        this.dbName = DEFAULT_DB_NAME;
+        this.collectionName = DEFAULT_COLLECTION_NAME;
     }
 
     // -------------------------
