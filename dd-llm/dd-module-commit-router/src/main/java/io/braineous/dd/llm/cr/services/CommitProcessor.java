@@ -37,7 +37,7 @@ public class CommitProcessor {
     public CommitProcessor() {
     }
 
-    void setAsyncMode(boolean asyncMode) {
+    public void setAsyncMode(boolean asyncMode) {
         this.asyncMode = asyncMode;
     }
 
