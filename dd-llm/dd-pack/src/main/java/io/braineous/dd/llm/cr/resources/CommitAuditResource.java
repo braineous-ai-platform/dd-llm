@@ -1,11 +1,8 @@
 package io.braineous.dd.llm.cr.resources;
 
-import io.braineous.dd.llm.cr.model.CommitAuditStatus;
+import com.google.gson.JsonObject;
 import io.braineous.dd.llm.cr.model.CommitAuditView;
 import io.braineous.dd.llm.cr.services.CommitAuditService;
-
-import com.google.gson.JsonObject;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -14,14 +11,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/cr/commit")
+@Path("/api")
 public class CommitAuditResource {
 
     @Inject
     CommitAuditService svc;
 
     @GET
-    @Path("/{commitId}")
+    @Path("/cr/commit/{commitId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAudit(@PathParam("commitId") String commitId) {
 

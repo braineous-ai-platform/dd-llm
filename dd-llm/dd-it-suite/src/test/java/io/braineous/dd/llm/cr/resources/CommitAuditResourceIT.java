@@ -44,7 +44,7 @@ public class CommitAuditResourceIT {
     @Test
     void getAudit_blank_commitId_returns_400() {
         given()
-                .when().get("/cr/commit/   ")
+                .when().get("/api/cr/commit/   ")
                 .then().statusCode(404); // path param with spaces typically becomes 404; keep this test optional
     }
 
@@ -61,7 +61,7 @@ public class CommitAuditResourceIT {
 
         String body =
                 given()
-                        .when().get("/cr/commit/" + commitId)
+                        .when().get("/api/cr/commit/" + commitId)
                         .then().statusCode(200)
                         .extract().asString();
 
@@ -84,7 +84,7 @@ public class CommitAuditResourceIT {
     void getAudit_missing_returns_404_with_error_body() {
         String body =
                 given()
-                        .when().get("/cr/commit/cr_missing")
+                        .when().get("/api/cr/commit/cr_missing")
                         .then().statusCode(404)
                         .extract().asString();
 
