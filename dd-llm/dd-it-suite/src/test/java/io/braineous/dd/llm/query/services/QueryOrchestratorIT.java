@@ -1,10 +1,7 @@
 package io.braineous.dd.llm.query.services;
 
 
-import ai.braineous.cgo.history.HistoryRecord;
-import ai.braineous.cgo.history.HistoryView;
-import ai.braineous.cgo.history.MongoHistoryStore;
-import ai.braineous.cgo.history.ScorerResult;
+import ai.braineous.cgo.history.*;
 import ai.braineous.rag.prompt.cgo.api.*;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 
@@ -14,6 +11,7 @@ import io.braineous.dd.llm.query.client.QueryResult;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 
 @QuarkusTest
@@ -23,20 +21,13 @@ public class QueryOrchestratorIT {
     void query_orchestrator_to_mongo_history_end_to_end() {
         ai.braineous.rag.prompt.observe.Console.log("IT", "query_orchestrator_to_mongo_history_end_to_end");
 
-        String dbName = MongoHistoryStore.DEFAULT_DB_NAME;
-        String collectionName = MongoHistoryStore.DEFAULT_COLLECTION_NAME;
-
         MongoHistoryStore store = new MongoHistoryStore();
         store.clear();
         ai.braineous.rag.prompt.observe.Console.log("IT", "mongo cleared");
 
-
         QueryOrchestrator orch = new QueryOrchestrator();
 
-        // Build a real request with queryKind so MongoHistoryStore can index it
-        // Replace Meta/GraphContext constructors with your actual ones.
-        Meta meta = new Meta(
-                "v1", "it_query_kind", "description");
+        Meta meta = new Meta("v1", "it_query_kind", "description");
         GraphContext ctx = new GraphContext(java.util.Map.of());
 
         String factId = "Flight:F100";
@@ -57,24 +48,36 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertNotNull(exec.getRequest().getMeta());
         org.junit.jupiter.api.Assertions.assertEquals("it_query_kind", exec.getRequest().getMeta().getQueryKind());
 
-        // Create HistoryRecord and persist
+        // Create HistoryRecord and persist (THIS WAS MISSING)
         ScorerResult score = ScorerResult.ok("it smoke");
+        HistoryRecord rec = new HistoryRecord(exec, score);
+        rec.markPending(Instant.now());
+        store.upsertPending(rec);
 
         // Verify via MongoHistoryStore query API
         HistoryView view = store.findHistory("it_query_kind");
         ai.braineous.rag.prompt.observe.Console.log("IT", view);
 
-        // If HistoryView has a list accessor, prefer that. Otherwise fallback to getAll().
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
 
         org.junit.jupiter.api.Assertions.assertEquals(1, all.size());
-        org.junit.jupiter.api.Assertions.assertEquals("it_query_kind", all.get(0).getQueryKind());
-
-        org.junit.jupiter.api.Assertions.assertEquals(1, all.size());
 
         HistoryRecord r = all.get(0);
+
+        // ---- convergence invariants ----
         org.junit.jupiter.api.Assertions.assertEquals("it_query_kind", r.getQueryKind());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getQueryExecution());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getQueryExecution().getRequest());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getQueryExecution().getRequest().getMeta());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                r.getQueryKind(),
+                r.getQueryExecution().getRequest().getMeta().getQueryKind()
+        );
+
+        org.junit.jupiter.api.Assertions.assertEquals(HistoryStatus.PENDING, r.getStatus());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getCreatedAt());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getUpdatedAt());
 
         QueryExecution<?> ex = r.getQueryExecution();
         org.junit.jupiter.api.Assertions.assertNotNull(ex);
@@ -157,10 +160,8 @@ public class QueryOrchestratorIT {
 
         ValidateTask taskOk = new ValidateTask("validate flight airports", "Flight:F100");
 
-        // IMPORTANT: use the same QueryRequest ctor you used in your green test
         QueryRequest reqOk = new QueryRequest(metaOk, ctxOk, taskOk);
         reqOk.setAdapter(new OkLlmAdapter());
-
 
         QueryResult resOk = orch.execute(reqOk);
         ai.braineous.rag.prompt.observe.Console.log("IT", resOk.toJson());
@@ -260,8 +261,6 @@ public class QueryOrchestratorIT {
         HistoryView viewB = store.findHistory("it_qk_B");
         ai.braineous.rag.prompt.observe.Console.log("IT", "viewB=" + viewB);
 
-        // Strongest assertion without relying on HistoryView internals:
-        // validate by scanning getAll() and counting queryKind matches.
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(2, all.size());
@@ -312,19 +311,15 @@ public class QueryOrchestratorIT {
         HistoryRecord r = all.get(0);
         ai.braineous.rag.prompt.observe.Console.log("IT", r.toString());
 
-        // Invariant #1: record queryKind
         org.junit.jupiter.api.Assertions.assertEquals(qk, r.getQueryKind());
 
-        // Invariant #2: record contains execution
         QueryExecution<?> ex = r.getQueryExecution();
         org.junit.jupiter.api.Assertions.assertNotNull(ex);
 
-        // Invariant #3: execution request/meta queryKind matches record queryKind
         org.junit.jupiter.api.Assertions.assertNotNull(ex.getRequest());
         org.junit.jupiter.api.Assertions.assertNotNull(ex.getRequest().getMeta());
         org.junit.jupiter.api.Assertions.assertEquals(qk, ex.getRequest().getMeta().getQueryKind());
 
-        // Invariant #4: status OK and validation OK
         org.junit.jupiter.api.Assertions.assertTrue(ex.isOk());
         org.junit.jupiter.api.Assertions.assertEquals("OK", ex.getStatus());
 
@@ -333,7 +328,6 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertTrue(vr.isOk());
         org.junit.jupiter.api.Assertions.assertEquals("Flight:RT1", vr.getAnchorId());
     }
-
 
     @Test
     void history_getAll_order_is_not_assumed_membership_only() {
@@ -346,7 +340,6 @@ public class QueryOrchestratorIT {
         QueryOrchestrator orch = new QueryOrchestrator();
         GraphContext ctx = new GraphContext(java.util.Map.of());
 
-        // Insert 3 OK records with distinct queryKind
         runOk(orch, ctx, "it_order_A", "Flight:OA");
         runOk(orch, ctx, "it_order_B", "Flight:OB");
         runOk(orch, ctx, "it_order_C", "Flight:OC");
@@ -382,7 +375,6 @@ public class QueryOrchestratorIT {
         QueryOrchestrator orch = new QueryOrchestrator();
         GraphContext ctx = new GraphContext(java.util.Map.of());
 
-        // 1) null queryKind
         Meta metaNull = new Meta("v1", null, "null qk");
         ValidateTask taskNull = new ValidateTask("validate null qk", "Flight:NQK");
         QueryRequest reqNull = new QueryRequest(metaNull, ctx, taskNull);
@@ -392,7 +384,6 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", resNull.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(resNull.isOk());
 
-        // 2) blank queryKind
         Meta metaBlank = new Meta("v1", "   ", "blank qk");
         ValidateTask taskBlank = new ValidateTask("validate blank qk", "Flight:BQK");
         QueryRequest reqBlank = new QueryRequest(metaBlank, ctx, taskBlank);
@@ -402,12 +393,9 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", resBlank.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(resBlank.isOk());
 
-        // If indexing is correct, neither of these should be discoverable by a real queryKind
         HistoryView view = store.findHistory("some_real_query_kind");
         ai.braineous.rag.prompt.observe.Console.log("IT", view);
 
-        // Strong assertion independent of HistoryView internals:
-        // there should be ZERO records in getAll() whose queryKind equals "some_real_query_kind"
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
 
@@ -433,7 +421,6 @@ public class QueryOrchestratorIT {
 
         String qk = "it_qk_dup";
 
-        // run 1
         Meta meta1 = new Meta("v1", qk, "dup 1");
         ValidateTask task1 = new ValidateTask("validate dup 1", "Flight:D1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
@@ -443,7 +430,6 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", r1.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(r1.isOk());
 
-        // run 2
         Meta meta2 = new Meta("v1", qk, "dup 2");
         ValidateTask task2 = new ValidateTask("validate dup 2", "Flight:D2");
         QueryRequest req2 = new QueryRequest(meta2, ctx, task2);
@@ -453,11 +439,9 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(r2.isOk());
 
-        // findHistory should see both
         HistoryView view = store.findHistory(qk);
         ai.braineous.rag.prompt.observe.Console.log("IT", view);
 
-        // Without relying on HistoryView internals: count via getAll()
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(2, all.size());
@@ -484,7 +468,6 @@ public class QueryOrchestratorIT {
 
         String qk = "it_qk_trim";
 
-        // Insert 2 records under the same queryKind
         Meta meta1 = new Meta("v1", qk, "trim 1");
         ValidateTask task1 = new ValidateTask("validate trim 1", "Flight:T1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
@@ -501,16 +484,12 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(r2.isOk());
 
-        // Baseline: exact lookup
         HistoryView exact = store.findHistory(qk);
         ai.braineous.rag.prompt.observe.Console.log("IT", "exact=" + exact);
 
-        // Trimmed input lookup
         HistoryView spaced = store.findHistory("   " + qk + "   ");
         ai.braineous.rag.prompt.observe.Console.log("IT", "spaced=" + spaced);
 
-        // Strong assertion without relying on HistoryView internals:
-        // getAll must contain exactly 2 records with queryKind=qk
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(2, all.size());
@@ -522,9 +501,6 @@ public class QueryOrchestratorIT {
             }
         }
         org.junit.jupiter.api.Assertions.assertEquals(2, hits);
-
-        // If HistoryView exposes count/records, prefer it; otherwise we just ensure no exception + same backing data.
-        // Optional: if HistoryView.toString includes records count, you can compare exact.toString and spaced.toString.
     }
 
     @Test
@@ -538,7 +514,6 @@ public class QueryOrchestratorIT {
         QueryOrchestrator orch = new QueryOrchestrator();
         GraphContext ctx = new GraphContext(java.util.Map.of());
 
-        // Insert 2 OK records
         Meta meta1 = new Meta("v1", "it_clear_qk", "clear 1");
         ValidateTask task1 = new ValidateTask("validate clear 1", "Flight:C1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
@@ -555,21 +530,17 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(r2.isOk());
 
-        // Sanity check before clear
         List<HistoryRecord> before = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "before.size=" + before.size());
         org.junit.jupiter.api.Assertions.assertEquals(2, before.size());
 
-        // Clear
         store.clear();
         ai.braineous.rag.prompt.observe.Console.log("IT", "mongo cleared (after)");
 
-        // After clear: no records
         List<HistoryRecord> after = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "after.size=" + after.size());
         org.junit.jupiter.api.Assertions.assertEquals(0, after.size());
 
-        // And findHistory should return empty
         HistoryView view = store.findHistory("it_clear_qk");
         ai.braineous.rag.prompt.observe.Console.log("IT", view);
         org.junit.jupiter.api.Assertions.assertEquals(0, store.getAll().size());
@@ -597,22 +568,18 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
         org.junit.jupiter.api.Assertions.assertNotNull(res.getQueryExecutionJson());
 
-        // Rehydrate
         QueryExecution<?> exec = QueryExecution.fromJson(res.getQueryExecutionJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", exec.toJson());
 
         org.junit.jupiter.api.Assertions.assertNotNull(exec);
         org.junit.jupiter.api.Assertions.assertNotNull(exec.getRequest());
 
-        // Adapter is expected to be null after rehydrate (class name not loadable / not persisted as object)
         org.junit.jupiter.api.Assertions.assertNull(exec.getRequest().getAdapter());
 
-        // But core invariants still hold
         org.junit.jupiter.api.Assertions.assertTrue(exec.isOk());
         org.junit.jupiter.api.Assertions.assertEquals("OK", exec.getStatus());
         org.junit.jupiter.api.Assertions.assertEquals("it_adapter_null", exec.getRequest().getMeta().getQueryKind());
 
-        // And it should be persisted + re-loadable from store
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(1, all.size());
@@ -690,28 +657,22 @@ public class QueryOrchestratorIT {
         QueryExecution<?> ex = all.get(0).getQueryExecution();
         ai.braineous.rag.prompt.observe.Console.log("IT", ex.toJson());
 
-        // Execution-level stage
         org.junit.jupiter.api.Assertions.assertNotNull(ex.getStage());
         org.junit.jupiter.api.Assertions.assertFalse(ex.getStage().isBlank());
 
-        // Prompt validation stage
         ValidationResult pv = ex.getPromptValidation();
         org.junit.jupiter.api.Assertions.assertNotNull(pv);
         org.junit.jupiter.api.Assertions.assertNotNull(pv.getStage());
         org.junit.jupiter.api.Assertions.assertFalse(pv.getStage().isBlank());
 
-        // LLM response validation stage
         ValidationResult lv = ex.getLlmResponseValidation();
         org.junit.jupiter.api.Assertions.assertNotNull(lv);
         org.junit.jupiter.api.Assertions.assertNotNull(lv.getStage());
         org.junit.jupiter.api.Assertions.assertFalse(lv.getStage().isBlank());
 
-        // Sanity: OK execution implies OK validations
         org.junit.jupiter.api.Assertions.assertTrue(pv.isOk());
         org.junit.jupiter.api.Assertions.assertTrue(lv.isOk());
 
-        // Consistency check (no hardcoding exact values)
-        // Execution stage should be either "ok" or contain "ok" in some normalized form
         String execStage = ex.getStage().toLowerCase();
         org.junit.jupiter.api.Assertions.assertTrue(execStage.contains("ok"));
     }
@@ -750,7 +711,6 @@ public class QueryOrchestratorIT {
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(n, all.size());
 
-        // membership check (order not assumed)
         int okCount = 0;
         for (int i = 0; i < all.size(); i++) {
             HistoryRecord r = all.get(i);
@@ -789,7 +749,6 @@ public class QueryOrchestratorIT {
             org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
         }
 
-        // Strong count via getAll (order not assumed)
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(n, all.size());
@@ -802,7 +761,6 @@ public class QueryOrchestratorIT {
         }
         org.junit.jupiter.api.Assertions.assertEquals(n, hits);
 
-        // Also exercise findHistory path (no internal assumptions)
         HistoryView view = store.findHistory(qk);
         ai.braineous.rag.prompt.observe.Console.log("IT", "view=" + view);
     }
@@ -831,7 +789,6 @@ public class QueryOrchestratorIT {
             QueryResult res = orch.execute(req);
             ai.braineous.rag.prompt.observe.Console.log("IT", "i=" + i + " id=" + res.getId());
 
-            // Contract: orchestrator executed
             org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
 
             QueryExecution<?> ex = QueryExecution.fromJson(res.getQueryExecutionJson());
@@ -840,7 +797,6 @@ public class QueryOrchestratorIT {
             org.junit.jupiter.api.Assertions.assertEquals("ERROR", ex.getStatus());
         }
 
-        // Contract: ERROR executions never persist
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(0, all.size());
@@ -879,7 +835,6 @@ public class QueryOrchestratorIT {
             QueryResult res = orch.execute(req);
             ai.braineous.rag.prompt.observe.Console.log("IT", "i=" + i + " doOk=" + doOk + " id=" + res.getId());
 
-            // Contract: orchestrator always executed
             org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
 
             QueryExecution<?> ex = QueryExecution.fromJson(res.getQueryExecutionJson());
@@ -894,7 +849,6 @@ public class QueryOrchestratorIT {
             }
         }
 
-        // Contract: only OK executions persist
         List<HistoryRecord> all = store.getAll();
         ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
         org.junit.jupiter.api.Assertions.assertEquals(okCount, all.size());
@@ -937,14 +891,12 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
     }
 
-    private static class FakeLlmAdapter extends LlmAdapter{
+    private static class FakeLlmAdapter extends LlmAdapter {
 
         @Override
         public String invokeLlm(JsonObject prompt) {
             return "{\"result\":{\"ok\":true,\"code\":\"response.contract.ok\",\"message\":\"ok\",\"stage\":\"llm_response_validation\",\"anchorId\":\"Flight:F100\",\"metadata\":{}}}";
         }
-
-
     }
 
     private static class ErrorLlmAdapter extends LlmAdapter {

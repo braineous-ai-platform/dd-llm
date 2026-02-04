@@ -46,6 +46,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import ai.braineous.cgo.history.MongoHistoryStore;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 @QuarkusTest
 public class PolicyGateIT {
 
@@ -100,8 +102,7 @@ public class PolicyGateIT {
 
         GraphContext ctx = new GraphContext();
 
-
-        // IMPORTANT: factId == executionId == commitId
+        // IMPORTANT: factId == commitId (no executionId concept)
         String factId = "Flight:F100";
 
         ValidateTask task = new ValidateTask("validate_flight_airports", factId);
@@ -117,7 +118,9 @@ public class PolicyGateIT {
         HistoryRecord record =
                 new HistoryRecord(exec, scorer);
 
-        historyStore.addRecord(record);
+        // IMPORTANT: store via upsertPending so (factId == commitId) indexing is exercised
+        record.markPending(Instant.now());
+        historyStore.upsertPending(record);
 
         // -------------------------
         // Act
@@ -179,7 +182,9 @@ public class PolicyGateIT {
         QueryRequest<?> req = new QueryRequest<>(meta, ctx, task, factId);
         QueryExecution<?> exec = new QueryExecution<>(req);
 
-        historyStore.addRecord(new HistoryRecord(exec, ScorerResult.ok("ok")));
+        HistoryRecord rec = new HistoryRecord(exec, ScorerResult.ok("ok"));
+        rec.markPending(Instant.now());
+        historyStore.upsertPending(rec);
 
         // act: try to approve with wrong kind
         PolicyGateResult result = policyGateOrchestrator.approve(approveKind, factId);
@@ -206,7 +211,9 @@ public class PolicyGateIT {
         QueryRequest<?> req = new QueryRequest<>(meta, ctx, task, factId);
         QueryExecution<?> exec = new QueryExecution<>(req);
 
-        historyStore.addRecord(new HistoryRecord(exec, ScorerResult.ok("ok")));
+        HistoryRecord rec = new HistoryRecord(exec, ScorerResult.ok("ok"));
+        rec.markPending(Instant.now());
+        historyStore.upsertPending(rec);
 
         // act 1
         PolicyGateResult r1 = policyGateOrchestrator.approve(queryKind, factId);
@@ -226,5 +233,6 @@ public class PolicyGateIT {
     }
 
 }
+
 
 
