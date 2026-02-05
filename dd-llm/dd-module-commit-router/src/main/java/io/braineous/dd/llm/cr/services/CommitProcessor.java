@@ -1,6 +1,7 @@
 package io.braineous.dd.llm.cr.services;
 
 import com.google.gson.JsonObject;
+import io.braineous.dd.dlq.service.DLQOrchestrator;
 import io.braineous.dd.llm.core.model.Why;
 import io.braineous.dd.llm.core.processor.GsonJsonSerializer;
 import io.braineous.dd.llm.core.processor.HttpPoster;
@@ -34,6 +35,9 @@ public class CommitProcessor {
     @Inject
     private HttpPoster httpPoster;
 
+    @Inject
+    private DLQOrchestrator dlqOrch;
+
     public CommitProcessor() {
     }
 
@@ -46,40 +50,55 @@ public class CommitProcessor {
     }
 
     public void orchestrate(CommitRequest request){
+        if(request == null){
+            return;
+        }
+
+        JsonObject requestJson = request.toJson();
         try {
 
             //validate request
             CommitValidation validation = this.validate(request);
             if(!validation.isOk()){
-                //TODO: //if fail DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
 
             String commitId = request.safeCommitId();
             if (commitId == null) {
-                // TODO DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
 
             CommitReceipt receipt = createReceiptEmitAttempted(commitId);
             if(receipt == null){
-                // TODO DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
 
             CommitEvent event = createEvent(request, commitId);
             if(event  == null){
-                // TODO DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
 
             CommitAuditView view = CommitAuditView.from(commitId, event, request, receipt);
             if (view == null) {
-                //TODO: //if fail DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
@@ -87,7 +106,9 @@ public class CommitProcessor {
 
             String kafkaEvent = view.toJsonString();
             if(kafkaEvent == null || kafkaEvent.trim().isBlank()){
-                //TODO: //if fail DLQ-D
+                //record as DLQ Domain Failure
+                Exception e = new Exception(requestJson.toString());
+                this.dlqOrch.orchestrateDomainFailure(e, requestJson.toString());
 
                 return;
             }
@@ -113,17 +134,22 @@ public class CommitProcessor {
                         //no return. still record the view.
                         //view should not drift due to any error
                         //in emission
+                        //record as DLQ System Failure
+                        Exception e = new Exception(requestJson.toString());
+                        this.dlqOrch.orchestrateSystemFailure(e, requestJson.toString());
                     }
                 }
             }catch(Exception e){
                 //kafka_failure, hence place in DLQ-S for retry
                 //but view should be recorded
+                this.dlqOrch.orchestrateSystemFailure(e, requestJson.toString());
             }
 
             //update db and corresponding collections
             this.commit(request, receipt, event);
         }catch (Exception e){
             //DLQ-S
+            this.dlqOrch.orchestrateSystemFailure(e, requestJson.toString());
         }
 
     }
