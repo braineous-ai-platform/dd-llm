@@ -42,6 +42,22 @@ services:
     ports:
       - "9092:9092"   # optional (host tooling)
 
+  dd-module-dlq-service:
+    image: braineousai/dd-kafka-dd-module-dlq-service:1.0.0
+    environment:
+      - QUARKUS_HTTP_PORT=8083
+      - QUARKUS_MONGODB_CONNECTION_STRING=mongodb://mongo:27017/dd
+      - DD_PORT=8083
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DD_CONFIG_PATH=/dd-default.properties
+    volumes:
+      - ./dd-default-docker.properties:/dd-default.properties:ro
+    depends_on:
+      - kafka
+      - mongo
+    ports:
+      - "8083"
+
   dd-pack:
     build:
       context: ./dd-pack
