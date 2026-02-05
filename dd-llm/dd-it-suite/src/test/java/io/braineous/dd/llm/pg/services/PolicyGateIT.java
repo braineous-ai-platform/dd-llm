@@ -11,10 +11,7 @@ import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
 import com.mongodb.client.MongoClient;
 import io.braineous.dd.llm.cr.model.*;
-import io.braineous.dd.llm.cr.persistence.CommitAuditViewMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitEventMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitReceiptMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitRequestMongoStore;
+import io.braineous.dd.llm.cr.persistence.*;
 import io.braineous.dd.llm.cr.services.CommitAuditService;
 import io.braineous.dd.llm.cr.services.CommitProcessor;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
@@ -75,6 +72,10 @@ public class PolicyGateIT {
     @Inject
     CommitProcessor commitProcessor;
 
+    @Inject
+    CommitSentMongoStore commitSentStore;
+
+
     @BeforeEach
     public void setup() {
         historyStore.clear();
@@ -82,6 +83,7 @@ public class PolicyGateIT {
         requestStore.clear();
         receiptStore.clear();
         auditStore.clear();
+        commitSentStore.clear();
 
         // force sync for IT
         commitProcessor.setAsyncMode(false);

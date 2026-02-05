@@ -6,10 +6,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import io.braineous.dd.llm.cr.model.*;
-import io.braineous.dd.llm.cr.persistence.CommitAuditViewMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitEventMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitReceiptMongoStore;
-import io.braineous.dd.llm.cr.persistence.CommitRequestMongoStore;
+import io.braineous.dd.llm.cr.persistence.*;
 import io.quarkus.test.junit.QuarkusTest;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +35,10 @@ public class CommitProcessorIT {
     @Inject
     CommitReceiptMongoStore receiptStore;
 
+    @Inject
+    CommitSentMongoStore commitSentStore;
+
+
     @BeforeEach
     void setup() {
 
@@ -52,6 +53,8 @@ public class CommitProcessorIT {
         drop(CommitEventMongoStore.DEFAULT_DB_NAME, CommitEventMongoStore.DEFAULT_COLLECTION_NAME);
         drop(CommitRequestMongoStore.DEFAULT_DB_NAME, CommitRequestMongoStore.DEFAULT_COLLECTION_NAME);
         drop(CommitReceiptMongoStore.DEFAULT_DB_NAME, CommitReceiptMongoStore.DEFAULT_COLLECTION_NAME);
+        drop(CommitSentMongoStore.DEFAULT_DB_NAME, CommitSentMongoStore.DEFAULT_COLLECTION_NAME);
+
 
         try { Thread.sleep(250L); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
 
@@ -192,6 +195,30 @@ public class CommitProcessorIT {
         org.junit.jupiter.api.Assertions.assertNull(auditViewStore.getView("c-any"));
     }
 
+
+    //@Test
+    void commitLLMResponseAsync_writes_commit_sent_breadcrumb() throws Exception {
+        Console.log("TEST", "submit_llm_response_async_commit_sent");
+
+        processor.setAsyncMode(true);
+
+        String commitId = "c-1";
+        CommitRequest req = buildRequest(commitId, "audit.commit", "v1", "system");
+
+        long before = commitSentStore.count();
+        Console.log("commit_sent.before", before);
+
+        processor.orchestrate(req);
+
+        waitUntilCommitSentCountIs(before + 1);
+
+        long after = commitSentStore.count();
+        Console.log("commit_sent.after", after);
+
+        org.junit.jupiter.api.Assertions.assertEquals(before + 1, after);
+    }
+
+
     // -------------------------
     // helpers
     // -------------------------
@@ -224,5 +251,23 @@ public class CommitProcessorIT {
         MongoCollection<Document> col = db.getCollection(collectionName);
         col.drop();
     }
+
+    private void waitUntilCommitSentCountIs(long expected) throws Exception {
+        long start = System.currentTimeMillis();
+        long timeoutMs = 5000L;
+
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            long c = commitSentStore.count();
+            if (c >= expected) {
+                return;
+            }
+            Thread.sleep(100L);
+        }
+
+        long finalCount = commitSentStore.count();
+        Console.log("commit_sent.timeout_final", finalCount);
+        org.junit.jupiter.api.Assertions.assertEquals(expected, finalCount);
+    }
+
 }
 
