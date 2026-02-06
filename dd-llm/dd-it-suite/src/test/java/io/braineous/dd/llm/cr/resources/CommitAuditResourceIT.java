@@ -61,7 +61,7 @@ public class CommitAuditResourceIT {
 
         String body =
                 given()
-                        .when().get("/api/cr/commit/" + commitId)
+                        .when().get("/api/v1/cr/commit/" + commitId)
                         .then().statusCode(200)
                         .extract().asString();
 
@@ -84,7 +84,7 @@ public class CommitAuditResourceIT {
     void getAudit_missing_returns_404_with_error_body() {
         String body =
                 given()
-                        .when().get("/api/cr/commit/cr_missing")
+                        .when().get("/api/v1/cr/commit/cr_missing")
                         .then().statusCode(404)
                         .extract().asString();
 

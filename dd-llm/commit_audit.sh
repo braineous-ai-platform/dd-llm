@@ -1,1 +1,1 @@
-curl -v http://localhost:8080/api/cr/commit/123
+curl -v http://localhost:8080/api/v1/cr/commit/123
