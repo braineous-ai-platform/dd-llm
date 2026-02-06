@@ -60,6 +60,11 @@
       <artifactId>llmdd-query-client</artifactId>
       <version>1.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>io.github.braineous-ai-platform</groupId>
+      <artifactId>dd-module-policygate</artifactId>
+      <version>1.0.0</version>
+    </dependency>
 
     <!-- quarkus -->
     <dependency>
