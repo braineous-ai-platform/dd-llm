@@ -2,6 +2,8 @@
 
 ![This is an image](parallax-image.jpg)
 
+LLMDD is a deterministic decisioning framework and runtime for production systems that use large language models. It separates non-deterministic LLM reasoning from deterministic execution, approval, and audit, ensuring every system change is explainable, attributable, and reproducible.
+
 # The Spine
 
 ## What it is, and why it exists
