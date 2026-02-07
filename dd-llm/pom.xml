@@ -19,6 +19,8 @@
     -->
     <module>dd-test-suite</module>
     <module>dd-it-suite</module>
+
+    <module>agentic-apps</module>
   </modules>
 
   <properties>
