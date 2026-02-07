@@ -1,6 +1,7 @@
 package ai.braineous.agentic.fno.reasoning.ingestion;
 
 
+import ai.braineous.cgo.config.CGOSystemConfig;
 import ai.braineous.rag.prompt.cgo.api.Fact;
 import ai.braineous.rag.prompt.cgo.api.FactExtractor;
 import ai.braineous.rag.prompt.cgo.api.GraphView;
@@ -11,6 +12,11 @@ import ai.braineous.rag.prompt.utils.Resources;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +27,26 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FNOOrchestratorTests {
     private FNOOrchestrator fnoOrchestrator = new FNOOrchestrator();
 
+    private MongoClient testClient;
+
     @BeforeEach
-    public void setup(){
+    public void setup() {
+
         GraphBuilder.getInstance().clear();
+
+        String uri = CGOSystemConfig.resolveMongoDBUri();
+        this.testClient = MongoClients.create(uri);
+
+        MongoDatabase db = testClient.getDatabase("cgo");
+        db.getCollection("cgo_nodes").deleteMany(new Document());
+        db.getCollection("cgo_edges").deleteMany(new Document());
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (this.testClient != null) {
+            this.testClient.close();
+        }
     }
 
     @Test

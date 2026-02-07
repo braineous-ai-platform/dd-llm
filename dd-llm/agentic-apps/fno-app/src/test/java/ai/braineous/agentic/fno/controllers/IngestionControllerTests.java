@@ -1,8 +1,19 @@
 package ai.braineous.agentic.fno.controllers;
 
+import ai.braineous.agentic.fno.support.TestGraphReset;
+import ai.braineous.cgo.config.CGOSystemConfig;
+import ai.braineous.cgo.history.MongoHistoryStore;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
+import ai.braineous.rag.prompt.models.cgo.graph.GraphStoreMongo;
 import ai.braineous.rag.prompt.observe.Console;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.bson.Document;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +22,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 public class IngestionControllerTests {
+
+    private MongoClient testClient;
+
     @BeforeEach
-    public void setup(){
+    public void setup() {
+
         GraphBuilder.getInstance().clear();
+
+        String uri = CGOSystemConfig.resolveMongoDBUri();
+        this.testClient = MongoClients.create(uri);
+
+        MongoDatabase db = testClient.getDatabase("cgo");
+        db.getCollection("cgo_nodes").deleteMany(new Document());
+        db.getCollection("cgo_edges").deleteMany(new Document());
     }
+
+    @AfterEach
+    public void tearDown() {
+        if (this.testClient != null) {
+            this.testClient.close();
+        }
+    }
+
+
 
     @Test
     void ingest_accepts_wrapper_object_and_returns_graph_with_edges() {
