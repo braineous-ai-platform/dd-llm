@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "version": "v1",
+    "query_kind": "validate_flight_airports",
+    "description": "Validate that the selected flight fact has valid departure and arrival airport codes using graph context."
+  },
+  "context": {
+    "nodes": {
+      "Flight:F100": {
+        "id": "Flight:F100",
+        "text": "{\"id\":\"F100\",\"kind\":\"Flight\",\"mode\":\"relational\",\"from\":\"AUS\",\"to\":\"DFW\"}",
+        "attributes": [],
+        "mode": "relational"
+      }
+    }
+  },
+  "task": {
+    "description": "Validate that the selected flight has valid departure and arrival airport codes based on the airport nodes in the graph. A valid flight must have: (1) 'from' matching one Airport:* code, (2) 'to' matching one Airport:* code, (3) 'from' != 'to'.",
+    "factId": "Flight:F100"
+  },
+  "response_contract": {
+    "type": "validation_result",
+    "description": "Standard response for fact-level validation over a graph context.",
+    "schema": {
+      "result": {
+        "type": "object"
+      }
+    }
+  },
+  "instructions": [
+    "Return a single JSON object that strictly follows this schema.",
+    "Do not include any fields not listed in this schema.",
+    "Do not add natural language outside of JSON."
+  ],
+  "llm_instructions": [
+    "You are given a JSON object with 'meta', 'context', 'task', 'response_contract', and 'llm_instructions' fields.",
+    "Use only the 'context' and 'task' to understand what needs to be computed.",
+    "Locate the node in 'context.nodes' whose 'id' matches 'task.factId'.",
+    "Treat that node's 'text' field as JSON-encoded data and parse fields like 'id', 'kind', 'from', 'to'.",
+    "Use the 'response_contract' as the single source of truth for the shape of your reply.",
+    "Your answer must be a single JSON object that matches the 'result' schema in response_contract.",
+    "Do not include any keys that are not defined in the response_contract schema.",
+    "Do not include any natural language outside of JSON."
+  ]
+}

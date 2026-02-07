@@ -1,0 +1,10 @@
+{
+  "id": "F100",
+  "number": "F100",
+  "origin": "AUS",
+  "dest": "DFW",
+  "dep_utc": "2025-10-22T10:00:00Z",
+  "arr_utc": "2025-10-22T11:10:00Z",
+  "capacity": 150,
+  "equipment": "320"
+}

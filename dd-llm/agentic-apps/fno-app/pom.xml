@@ -68,7 +68,7 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>fno-app</artifactId>
+    <artifactId>agentic-fno-app</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -99,22 +99,22 @@
         <dependency>
             <groupId>io.github.braineous-ai-platform</groupId>
             <artifactId>cgo-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.braineous-ai-platform</groupId>
             <artifactId>cgo-llm</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.braineous-ai-platform</groupId>
             <artifactId>cgo-scorer</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.braineous-ai-platform</groupId>
             <artifactId>cgo-observer</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0</version>
         </dependency>
 
 
