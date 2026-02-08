@@ -1,0 +1,74 @@
+{
+  "flights": [
+    {
+      "id": "F100",
+      "number": "F100",
+      "origin": "AUS",
+      "dest": "DFW",
+      "dep_utc": "2025-10-22T10:00:00Z",
+      "arr_utc": "2025-10-22T11:10:00Z",
+      "capacity": 150,
+      "equipment": "320"
+    },
+    {
+      "id": "F102",
+      "number": "F102",
+      "origin": "AUS",
+      "dest": "DFW",
+      "dep_utc": "2025-10-22T11:30:00Z",
+      "arr_utc": "2025-10-22T12:40:00Z",
+      "capacity": 150,
+      "equipment": "320"
+    },
+    {
+      "id": "F110",
+      "number": "F110",
+      "origin": "SAT",
+      "dest": "DFW",
+      "dep_utc": "2025-10-22T11:10:00Z",
+      "arr_utc": "2025-10-22T12:15:00Z",
+      "capacity": 150,
+      "equipment": "320"
+    },
+    {
+      "id": "F120",
+      "number": "F120",
+      "origin": "IAH",
+      "dest": "DFW",
+      "dep_utc": "2025-10-22T11:20:00Z",
+      "arr_utc": "2025-10-22T12:25:00Z",
+      "capacity": 150,
+      "equipment": "319"
+    },
+    {
+      "id": "F200",
+      "number": "F200",
+      "origin": "DFW",
+      "dest": "ORD",
+      "dep_utc": "2025-10-22T13:30:00Z",
+      "arr_utc": "2025-10-22T16:50:00Z",
+      "capacity": 150,
+      "equipment": "738"
+    },
+    {
+      "id": "F210",
+      "number": "F210",
+      "origin": "DFW",
+      "dest": "JFK",
+      "dep_utc": "2025-10-22T13:20:00Z",
+      "arr_utc": "2025-10-22T17:10:00Z",
+      "capacity": 150,
+      "equipment": "321"
+    },
+    {
+      "id": "F220",
+      "number": "F220",
+      "origin": "DFW",
+      "dest": "LAX",
+      "dep_utc": "2025-10-22T13:45:00Z",
+      "arr_utc": "2025-10-22T15:20:00Z",
+      "capacity": 150,
+      "equipment": "73G"
+    }
+  ]
+}
