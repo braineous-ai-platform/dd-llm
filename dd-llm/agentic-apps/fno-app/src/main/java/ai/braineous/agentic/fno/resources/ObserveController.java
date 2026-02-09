@@ -1,4 +1,4 @@
-package ai.braineous.agentic.fno.controllers;
+package ai.braineous.agentic.fno.resources;
 
 import ai.braineous.agentic.fno.reasoning.observer.FNOObserver;
 import ai.braineous.cgo.history.HistoryView;

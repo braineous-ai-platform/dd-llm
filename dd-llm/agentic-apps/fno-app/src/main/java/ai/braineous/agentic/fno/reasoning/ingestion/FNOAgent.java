@@ -5,9 +5,7 @@ import ai.braineous.rag.prompt.services.cgo.causal.CausalLLMBridge;
 
 import com.google.gson.JsonArray;
 
-import java.util.List;
-
-public class FNOOrchestrator {
+public class FNOAgent {
     private LLMBridge llmBridge = new CausalLLMBridge();
 
     public GraphView orchestrate(JsonArray flightsJsonArray) {

@@ -1,4 +1,4 @@
-package ai.braineous.agentic.fno.controllers;
+package ai.braineous.agentic.fno.resources;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;

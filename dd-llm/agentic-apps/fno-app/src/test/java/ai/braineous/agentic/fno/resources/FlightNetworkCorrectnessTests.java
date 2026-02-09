@@ -1,6 +1,6 @@
-package ai.braineous.agentic.fno.controllers;
+package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.reasoning.ingestion.FNOOrchestrator;
+import ai.braineous.agentic.fno.reasoning.ingestion.FNOAgent;
 import ai.braineous.rag.prompt.cgo.api.Edge;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphSnapshot;
 import ai.braineous.rag.prompt.observe.Console;
@@ -195,7 +195,7 @@ public class FlightNetworkCorrectnessTests {
      */
     private GraphSnapshot ingestToSnapshot(String body) {
         JsonArray jsonArray = JsonParser.parseString(body).getAsJsonArray();
-        GraphSnapshot snapshot = (GraphSnapshot) new FNOOrchestrator().orchestrate(jsonArray);
+        GraphSnapshot snapshot = (GraphSnapshot) new FNOAgent().orchestrate(jsonArray);
         return snapshot;
     }
 

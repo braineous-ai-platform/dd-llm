@@ -2,15 +2,10 @@ package ai.braineous.agentic.fno.reasoning.ingestion;
 
 
 import ai.braineous.cgo.config.CGOSystemConfig;
-import ai.braineous.rag.prompt.cgo.api.Fact;
-import ai.braineous.rag.prompt.cgo.api.FactExtractor;
-import ai.braineous.rag.prompt.cgo.api.GraphView;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphSnapshot;
 import ai.braineous.rag.prompt.observe.Console;
-import ai.braineous.rag.prompt.utils.Resources;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -20,12 +15,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FNOOrchestratorTests {
-    private FNOOrchestrator fnoOrchestrator = new FNOOrchestrator();
+public class FNOAgentTests {
+    private FNOAgent fnoOrchestrator = new FNOAgent();
 
     private MongoClient testClient;
 
@@ -66,7 +59,7 @@ public class FNOOrchestratorTests {
 
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);
@@ -102,7 +95,7 @@ public class FNOOrchestratorTests {
 
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);
@@ -129,7 +122,7 @@ public class FNOOrchestratorTests {
 
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);
@@ -153,7 +146,7 @@ public class FNOOrchestratorTests {
 
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);
@@ -184,7 +177,7 @@ public class FNOOrchestratorTests {
         JsonArray flights =
                 JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);
@@ -215,7 +208,7 @@ public class FNOOrchestratorTests {
         JsonArray flights =
                 JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
 
         GraphSnapshot v1 = (GraphSnapshot) orch.orchestrate(flights);
         GraphSnapshot v2 = (GraphSnapshot) orch.orchestrate(flights);
@@ -252,7 +245,7 @@ public class FNOOrchestratorTests {
         JsonArray flights =
                 JsonParser.parseString(body).getAsJsonArray();
 
-        FNOOrchestrator orch = new FNOOrchestrator();
+        FNOAgent orch = new FNOAgent();
         GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
 
         assertNotNull(view);

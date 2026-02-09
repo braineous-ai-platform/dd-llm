@@ -1,4 +1,4 @@
-package ai.braineous.agentic.fno.controllers;
+package ai.braineous.agentic.fno.resources;
 
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;

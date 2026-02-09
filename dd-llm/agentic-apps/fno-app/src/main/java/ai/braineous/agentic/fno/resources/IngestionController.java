@@ -1,10 +1,9 @@
-package ai.braineous.agentic.fno.controllers;
+package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.reasoning.ingestion.FNOOrchestrator;
+import ai.braineous.agentic.fno.reasoning.ingestion.FNOAgent;
 import ai.braineous.rag.prompt.cgo.api.GraphView;
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -13,7 +12,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.jboss.resteasy.reactive.RestResponse.Status;
 
 @Path("/fno/ingest")
 public class IngestionController {
@@ -39,7 +37,7 @@ public class IngestionController {
             return RestResponse.status(Response.Status.BAD_REQUEST, "{\"error\":\"parse failed\"}");
         }
 
-        FNOOrchestrator orchestrator = new FNOOrchestrator();
+        FNOAgent orchestrator = new FNOAgent();
         GraphView graph = orchestrator.orchestrate(flights);
 
         String out = (graph == null) ? "{}" : String.valueOf(graph); // v1: driver response
