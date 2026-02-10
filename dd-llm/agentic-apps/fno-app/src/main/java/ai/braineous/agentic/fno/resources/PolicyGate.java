@@ -1,8 +1,6 @@
 package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.reasoning.observer.FNOObserver;
-import ai.braineous.cgo.history.HistoryView;
-import ai.braineous.cgo.observer.Observer;
+import ai.braineous.agentic.fno.reasoning.governance.FNOPolicyGate;
 import ai.braineous.cgo.observer.WhySnapshot;
 import com.google.gson.JsonObject;
 import jakarta.ws.rs.GET;
@@ -14,7 +12,7 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/fno/observe")
-public class ObserveController {
+public class PolicyGate {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -28,7 +26,7 @@ public class ObserveController {
         }
 
         try {
-            FNOObserver observer = new FNOObserver();
+            FNOPolicyGate observer = new FNOPolicyGate();
             WhySnapshot snapshot = observer.getHistory(queryKind);
 
             JsonObject response = new JsonObject();

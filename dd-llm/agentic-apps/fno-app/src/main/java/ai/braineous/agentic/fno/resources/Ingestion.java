@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/fno/ingest")
-public class IngestionController {
+public class Ingestion {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

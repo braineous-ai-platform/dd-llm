@@ -1,5 +1,6 @@
 package ai.braineous.agentic.fno.reasoning.prompt;
 
+import ai.braineous.agentic.fno.reasoning.query.FNOQueryExecution;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
 import ai.braineous.rag.prompt.observe.Console;
@@ -11,11 +12,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class FNOPromptOrchestratorTests {
+public class FNOQueryExecutionTests {
 
     @Test
     public void testOrchestrate() throws Exception{
-        FNOPromptOrchestrator orchestrator = new FNOPromptOrchestrator();
+        FNOQueryExecution orchestrator = new FNOQueryExecution();
 
         String promptStr = Resources.getResource("prompt.json");
         JsonObject promptJson = JsonParser.parseString(promptStr).getAsJsonObject();
@@ -46,7 +47,7 @@ public class FNOPromptOrchestratorTests {
         JsonObject input = JsonParser.parseString(json).getAsJsonObject();
         Console.log("test.prompt.input", input);
 
-        FNOPromptOrchestrator orchestrator = new FNOPromptOrchestrator();
+        FNOQueryExecution orchestrator = new FNOQueryExecution();
 
         // act
         QueryExecution<ValidateTask> execution = orchestrator.orchestrate(input);

@@ -16,7 +16,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class IngestionControllerTests {
+public class IngestionTests {
 
     private MongoClient testClient;
 

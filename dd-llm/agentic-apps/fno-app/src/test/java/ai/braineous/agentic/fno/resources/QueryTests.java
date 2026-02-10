@@ -7,7 +7,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class PromptControllerTests {
+public class QueryTests {
 
     @Test
     void fnoQuery_returns200_andStableResponseShape() {

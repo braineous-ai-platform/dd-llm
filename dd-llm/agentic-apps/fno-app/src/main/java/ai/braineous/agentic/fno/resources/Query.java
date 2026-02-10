@@ -1,7 +1,7 @@
 package ai.braineous.agentic.fno.resources;
 
 
-import ai.braineous.agentic.fno.reasoning.prompt.FNOPromptOrchestrator;
+import ai.braineous.agentic.fno.reasoning.query.FNOQueryExecution;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
 import com.google.gson.JsonObject;
@@ -15,7 +15,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.Status;
 
 @Path("/fno/query")
-public class PromptController {
+public class Query {
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -38,7 +38,7 @@ public class PromptController {
         // 2) Orchestrate
         QueryExecution<ValidateTask> execution;
         try {
-            FNOPromptOrchestrator orchestrator = new FNOPromptOrchestrator();
+            FNOQueryExecution orchestrator = new FNOQueryExecution();
             execution = orchestrator.orchestrate(json);
         } catch (Exception e) {
             JsonObject err = new JsonObject();

@@ -1,11 +1,9 @@
-package ai.braineous.agentic.fno.reasoning.observer;
+package ai.braineous.agentic.fno.reasoning.governance;
 
-import ai.braineous.cgo.history.HistoryStore;
-import ai.braineous.cgo.history.HistoryView;
 import ai.braineous.cgo.observer.Observer;
 import ai.braineous.cgo.observer.WhySnapshot;
 
-public class FNOObserver {
+public class FNOPolicyGate {
 
     public WhySnapshot getHistory(String queryKind) {
         if (queryKind == null || queryKind.isBlank()) {

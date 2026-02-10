@@ -1,7 +1,6 @@
-package ai.braineous.agentic.fno.agent;
+package ai.braineous.agentic.fno.agents;
 
 
-import ai.braineous.agentic.fno.agents.FNOAgent;
 import ai.braineous.cgo.config.CGOSystemConfig;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphSnapshot;

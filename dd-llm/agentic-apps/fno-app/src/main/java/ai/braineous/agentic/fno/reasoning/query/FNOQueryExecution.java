@@ -1,20 +1,18 @@
-package ai.braineous.agentic.fno.reasoning.prompt;
+package ai.braineous.agentic.fno.reasoning.query;
 
 import ai.braineous.cgo.llm.OpenAILlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.*;
 
 import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
-import ai.braineous.rag.prompt.cgo.prompt.SimpleResponseContractRegistry;
 
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
-import ai.braineous.rag.prompt.cgo.query.PhaseResultValidator;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 
 import ai.braineous.rag.prompt.observe.Console;
 
 import com.google.gson.JsonObject;
 
-public class FNOPromptOrchestrator {
+public class FNOQueryExecution {
 
     public QueryExecution<ValidateTask> orchestrate(JsonObject json) {
         if (json == null) {

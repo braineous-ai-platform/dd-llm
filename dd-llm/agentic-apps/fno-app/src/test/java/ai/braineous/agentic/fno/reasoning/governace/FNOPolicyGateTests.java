@@ -1,13 +1,13 @@
-package ai.braineous.agentic.fno.reasoning.observer;
+package ai.braineous.agentic.fno.reasoning.governace;
 
-import ai.braineous.cgo.history.HistoryView;
+import ai.braineous.agentic.fno.reasoning.governance.FNOPolicyGate;
 import ai.braineous.cgo.observer.WhySnapshot;
 import ai.braineous.rag.prompt.observe.Console;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class FNOObserverTests {
+public class FNOPolicyGateTests {
 
     @Test
     void observer_returnsHistoryView_forQueryKind() {
@@ -15,7 +15,7 @@ public class FNOObserverTests {
         String queryKind = "FNO_VALIDATE";
         Console.log("test.observer.queryKind", queryKind);
 
-        FNOObserver observer = new FNOObserver();
+        FNOPolicyGate observer = new FNOPolicyGate();
 
         // act
         WhySnapshot snapshot = observer.getHistory(queryKind);
