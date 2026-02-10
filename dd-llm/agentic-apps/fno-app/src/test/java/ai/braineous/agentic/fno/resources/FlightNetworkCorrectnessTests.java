@@ -1,6 +1,6 @@
 package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.reasoning.ingestion.FNOAgent;
+import ai.braineous.agentic.fno.agents.FNOAgent;
 import ai.braineous.rag.prompt.cgo.api.Edge;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphSnapshot;
 import ai.braineous.rag.prompt.observe.Console;

@@ -1,8 +1,9 @@
-package ai.braineous.agentic.fno.reasoning.ingestion;
+package ai.braineous.agentic.fno.agents;
 
+import ai.braineous.agentic.fno.reasoning.ingestion.FNOFactExtractor;
+import ai.braineous.agentic.fno.reasoning.ingestion.FNORelationshipProvider;
 import ai.braineous.rag.prompt.cgo.api.*;
 import ai.braineous.rag.prompt.services.cgo.causal.CausalLLMBridge;
-
 import com.google.gson.JsonArray;
 
 public class FNOAgent {

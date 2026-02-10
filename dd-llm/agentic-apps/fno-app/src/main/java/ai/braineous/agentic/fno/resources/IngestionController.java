@@ -1,6 +1,6 @@
 package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.reasoning.ingestion.FNOAgent;
+import ai.braineous.agentic.fno.agents.FNOAgent;
 import ai.braineous.rag.prompt.cgo.api.GraphView;
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonArray;
@@ -37,8 +37,8 @@ public class IngestionController {
             return RestResponse.status(Response.Status.BAD_REQUEST, "{\"error\":\"parse failed\"}");
         }
 
-        FNOAgent orchestrator = new FNOAgent();
-        GraphView graph = orchestrator.orchestrate(flights);
+        FNOAgent agent = new FNOAgent();
+        GraphView graph = agent.orchestrate(flights);
 
         String out = (graph == null) ? "{}" : String.valueOf(graph); // v1: driver response
         Console.log("api.ingest.out", out);
