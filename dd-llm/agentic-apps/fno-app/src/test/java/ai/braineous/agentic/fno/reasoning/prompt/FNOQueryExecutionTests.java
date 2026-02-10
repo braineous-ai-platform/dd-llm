@@ -21,7 +21,7 @@ public class FNOQueryExecutionTests {
         String promptStr = Resources.getResource("prompt.json");
         JsonObject promptJson = JsonParser.parseString(promptStr).getAsJsonObject();
 
-        QueryExecution<ValidateTask> execution = orchestrator.orchestrate(promptJson);
+        QueryExecution<ValidateTask> execution = orchestrator.executeQuery(promptJson);
 
         Console.log("execution", execution);
     }
@@ -50,7 +50,7 @@ public class FNOQueryExecutionTests {
         FNOQueryExecution orchestrator = new FNOQueryExecution();
 
         // act
-        QueryExecution<ValidateTask> execution = orchestrator.orchestrate(input);
+        QueryExecution<ValidateTask> execution = orchestrator.executeQuery(input);
 
         // assert (spine test: just prove execution exists)
         assertNotNull(execution);

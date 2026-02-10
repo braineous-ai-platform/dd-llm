@@ -60,7 +60,7 @@ public class FNOAgentTests {
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
         Console.log("test.fno.orchestrate.out.nodes", "" + view.nodes().size());
@@ -96,7 +96,7 @@ public class FNOAgentTests {
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
 
@@ -123,7 +123,7 @@ public class FNOAgentTests {
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
 
@@ -147,7 +147,7 @@ public class FNOAgentTests {
         JsonArray flights = JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
 
@@ -178,7 +178,7 @@ public class FNOAgentTests {
                 JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
 
@@ -210,8 +210,8 @@ public class FNOAgentTests {
 
         FNOAgent orch = new FNOAgent();
 
-        GraphSnapshot v1 = (GraphSnapshot) orch.orchestrate(flights);
-        GraphSnapshot v2 = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot v1 = (GraphSnapshot) orch.ingestFlights(flights);
+        GraphSnapshot v2 = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -246,7 +246,7 @@ public class FNOAgentTests {
                 JsonParser.parseString(body).getAsJsonArray();
 
         FNOAgent orch = new FNOAgent();
-        GraphSnapshot view = (GraphSnapshot) orch.orchestrate(flights);
+        GraphSnapshot view = (GraphSnapshot) orch.ingestFlights(flights);
 
         assertNotNull(view);
 

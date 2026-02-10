@@ -20,14 +20,14 @@ public class Query {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RestResponse<String> prompt(String input) {
+    public RestResponse<String> query(String requestJson) {
         System.out.println("____input____");
-        System.out.println(input);
+        System.out.println(requestJson);
 
         // 1) Parse request body -> JsonObject
         JsonObject json;
         try {
-            json = JsonParser.parseString(input).getAsJsonObject();
+            json = JsonParser.parseString(requestJson).getAsJsonObject();
         } catch (Exception e) {
             JsonObject err = new JsonObject();
             err.addProperty("error", "Invalid JSON");
@@ -39,7 +39,7 @@ public class Query {
         QueryExecution<ValidateTask> execution;
         try {
             FNOQueryExecution orchestrator = new FNOQueryExecution();
-            execution = orchestrator.orchestrate(json);
+            execution = orchestrator.executeQuery(json);
         } catch (Exception e) {
             JsonObject err = new JsonObject();
             err.addProperty("error", "Orchestration failed");

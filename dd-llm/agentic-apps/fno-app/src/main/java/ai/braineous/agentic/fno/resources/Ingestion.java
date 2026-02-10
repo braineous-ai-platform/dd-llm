@@ -19,7 +19,7 @@ public class Ingestion {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RestResponse<String> ingest(String body) {
+    public RestResponse<String> ingestFlights(String body) {
         Console.log("api.ingest.in", body);
 
         JsonArray flights;
@@ -38,7 +38,7 @@ public class Ingestion {
         }
 
         FNOAgent agent = new FNOAgent();
-        GraphView graph = agent.orchestrate(flights);
+        GraphView graph = agent.ingestFlights(flights);
 
         String out = (graph == null) ? "{}" : String.valueOf(graph); // v1: driver response
         Console.log("api.ingest.out", out);

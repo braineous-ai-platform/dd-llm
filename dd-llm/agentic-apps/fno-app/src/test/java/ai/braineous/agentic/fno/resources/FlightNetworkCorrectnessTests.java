@@ -195,7 +195,7 @@ public class FlightNetworkCorrectnessTests {
      */
     private GraphSnapshot ingestToSnapshot(String body) {
         JsonArray jsonArray = JsonParser.parseString(body).getAsJsonArray();
-        GraphSnapshot snapshot = (GraphSnapshot) new FNOAgent().orchestrate(jsonArray);
+        GraphSnapshot snapshot = (GraphSnapshot) new FNOAgent().ingestFlights(jsonArray);
         return snapshot;
     }
 

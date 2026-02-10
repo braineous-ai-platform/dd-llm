@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 
 public class FNOQueryExecution {
 
-    public QueryExecution<ValidateTask> orchestrate(JsonObject json) {
+    public QueryExecution<ValidateTask> executeQuery(JsonObject json) {
         if (json == null) {
             throw new IllegalArgumentException("json must not be null");
         }

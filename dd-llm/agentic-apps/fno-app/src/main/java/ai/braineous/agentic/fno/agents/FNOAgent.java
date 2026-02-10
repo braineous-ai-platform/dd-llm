@@ -9,7 +9,7 @@ import com.google.gson.JsonArray;
 public class FNOAgent {
     private LLMBridge llmBridge = new CausalLLMBridge();
 
-    public GraphView orchestrate(JsonArray flightsJsonArray) {
+    public GraphView ingestFlights(JsonArray flightsJsonArray) {
         try {
             LLMContext context = new LLMContext();
 
