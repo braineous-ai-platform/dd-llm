@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import io.braineous.dd.llm.pg.model.ExecutionView;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
+import io.braineous.dd.llm.policygate.client.PolicyGateApproveRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

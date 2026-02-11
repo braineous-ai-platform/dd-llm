@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.pg.resources;
+package io.braineous.dd.llm.policygate.client;
 
 public class PolicyGateApproveRequest {
 
