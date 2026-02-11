@@ -6,6 +6,7 @@ import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.braineous.dd.llm.query.client.QueryResult;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -39,7 +40,8 @@ public class Query {
         QueryExecution<ValidateTask> execution;
         try {
             FNOQueryExecution orchestrator = new FNOQueryExecution();
-            execution = orchestrator.executeQuery(json);
+            QueryResult result = orchestrator.executeQuery(json);
+            execution = (QueryExecution<ValidateTask>)QueryExecution.fromJson(result.getQueryExecutionJson());
         } catch (Exception e) {
             JsonObject err = new JsonObject();
             err.addProperty("error", "Orchestration failed");

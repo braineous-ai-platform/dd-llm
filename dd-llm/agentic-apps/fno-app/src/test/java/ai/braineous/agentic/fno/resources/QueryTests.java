@@ -1,13 +1,23 @@
 package ai.braineous.agentic.fno.resources;
 
+import ai.braineous.agentic.fno.support.TestGraphSupport;
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 public class QueryTests {
+    @Inject
+    private TestGraphSupport support;
+
+    @BeforeEach
+    public void setup(){
+        support.setupGraphSnapshot();
+    }
 
     @Test
     void fnoQuery_returns200_andStableResponseShape() {
@@ -26,7 +36,7 @@ public class QueryTests {
         // TASK (ValidateTask expects: description?, factId)
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-123"); // REQUIRED by your orchestrator
+        task.addProperty("factId", "Flight:F100"); // REQUIRED by your orchestrator
         payload.add("task", task);
 
         // CONTEXT (PromptInput expects key: context; GraphContext.fromJson expects: nodes as JsonObject)
@@ -146,7 +156,7 @@ public class QueryTests {
 
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-456");
+        task.addProperty("factId", "Flight:F100");
         payload.add("task", task);
 
         JsonObject context = new JsonObject();
@@ -289,7 +299,7 @@ public class QueryTests {
 
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-1000");
+        task.addProperty("factId", "Flight:F100");
         task.addProperty("foo", "bar"); // extra
         payload.add("task", task);
 
@@ -336,7 +346,7 @@ public class QueryTests {
 
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-2000");
+        task.addProperty("factId", "Flight:F100");
         payload.add("task", task);
 
         JsonObject context = new JsonObject();
@@ -380,7 +390,7 @@ public class QueryTests {
 
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-3000");
+        task.addProperty("factId", "Flight:F100");
         payload.add("task", task);
 
         JsonObject context = new JsonObject();
@@ -427,7 +437,7 @@ public class QueryTests {
 
         JsonObject task = new JsonObject();
         task.addProperty("description", "smoke");
-        task.addProperty("factId", "FACT-4000");
+        task.addProperty("factId", "Flight:F100");
         payload.add("task", task);
 
         JsonObject context = new JsonObject();

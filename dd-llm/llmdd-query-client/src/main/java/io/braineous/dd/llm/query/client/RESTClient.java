@@ -11,6 +11,9 @@ import java.util.List;
 public class RESTClient implements QueryClient{
     public static final String VERSION = "v1";
 
+    public RESTClient() {
+    }
+
     @Override
     public QueryResult query(LlmAdapter llmAdapter,
             String queryKind,

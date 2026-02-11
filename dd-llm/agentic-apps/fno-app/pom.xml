@@ -119,6 +119,13 @@
 
 
         <dependency>
+            <groupId>io.github.braineous-ai-platform</groupId>
+            <artifactId>llmdd-query-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>
@@ -153,6 +160,12 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.braineous-ai-platform</groupId>
+            <artifactId>llmdd-query-client</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
