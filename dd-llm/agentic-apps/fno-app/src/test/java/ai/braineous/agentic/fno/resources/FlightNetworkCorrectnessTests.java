@@ -1,6 +1,6 @@
 package ai.braineous.agentic.fno.resources;
 
-import ai.braineous.agentic.fno.agents.FNOAgent;
+import ai.braineous.agentic.fno.agents.FNOIngestionAgent;
 import ai.braineous.rag.prompt.cgo.api.Edge;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphSnapshot;
 import ai.braineous.rag.prompt.observe.Console;
@@ -195,7 +195,7 @@ public class FlightNetworkCorrectnessTests {
      */
     private GraphSnapshot ingestToSnapshot(String body) {
         JsonArray jsonArray = JsonParser.parseString(body).getAsJsonArray();
-        GraphSnapshot snapshot = (GraphSnapshot) new FNOAgent().ingestFlights(jsonArray);
+        GraphSnapshot snapshot = (GraphSnapshot) new FNOIngestionAgent().ingestFlights(jsonArray);
         return snapshot;
     }
 

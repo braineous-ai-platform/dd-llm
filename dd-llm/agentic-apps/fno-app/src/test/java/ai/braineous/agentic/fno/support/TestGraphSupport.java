@@ -1,6 +1,6 @@
 package ai.braineous.agentic.fno.support;
 
-import ai.braineous.agentic.fno.agents.FNOAgent;
+import ai.braineous.agentic.fno.agents.FNOIngestionAgent;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -102,7 +102,7 @@ public class TestGraphSupport {
         GraphBuilder.getInstance().clear();
         this.clearGraph();
 
-        FNOAgent agent = new FNOAgent();
+        FNOIngestionAgent agent = new FNOIngestionAgent();
 
         JsonObject flightsJson = JsonParser.parseString(snapshot).getAsJsonObject();
         JsonArray array = flightsJson.get("flights").getAsJsonArray();

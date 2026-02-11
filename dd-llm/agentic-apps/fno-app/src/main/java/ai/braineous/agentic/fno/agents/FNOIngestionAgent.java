@@ -6,7 +6,7 @@ import ai.braineous.rag.prompt.cgo.api.*;
 import ai.braineous.rag.prompt.services.cgo.causal.CausalLLMBridge;
 import com.google.gson.JsonArray;
 
-public class FNOAgent {
+public class FNOIngestionAgent {
     private LLMBridge llmBridge = new CausalLLMBridge();
 
     public GraphView ingestFlights(JsonArray flightsJsonArray) {
