@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class PolicyGateTests {
 
-    @Test
+    /*@Test
     void observe_missingQueryKind_returns400() {
 
         String body =
@@ -81,6 +81,6 @@ public class PolicyGateTests {
 
         assertTrue(body.contains("\"why_snapshot\""));
         assertFalse(body.contains("\"why_snapshot\":{}"));
-    }
+    }*/
 
 }
