@@ -926,5 +926,24 @@ LLMDD processes a query as follows:
 
 query → execution truth → explicit approval → approved mutation → auditable mutation truth
 
+---
+
+## Commercial Support
+
+👉 **Commercial delivery (Upwork project):**  
+https://www.upwork.com/services/product/development-it-enterprise-ai-workflows-with-approvals-audit-2022454982227373995
+
+LLMDD is designed for production systems that require deterministic boundaries around LLM reasoning.
+
+If you're evaluating LLMDD for a real system and are unsure whether it fits your architecture, start with a concrete question:
+
+- your approval boundary requirements
+- your audit / explainability constraints
+- your mutation safety model
+- your replay or failure recovery strategy
+
+Clarity first. Delivery second.
+
+
 
 
