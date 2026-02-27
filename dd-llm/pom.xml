@@ -10,6 +10,7 @@
     <module>dd-module-core</module>
     <module>dd-module-policygate</module>
     <module>dd-module-commit-router</module>
+    <module>dd-module-transaction</module>
     <module>dd-module-query</module>
     <module>dd-pack</module>
     <module>dd-test-suite</module>
