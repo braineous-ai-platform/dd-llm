@@ -7,7 +7,7 @@ import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import io.braineous.dd.llm.core.model.Why;
 
-public class QueryOrchestrator {
+public class QueryOrchestrator implements QueryExecutor{
 
     private static final String ID_PREFIX = "DD-LLM-QUERYORCH";
     private static final String WHY_CODE_NULL_REQUEST = ID_PREFIX + "-FAIL-request_null";
@@ -40,6 +40,7 @@ public class QueryOrchestrator {
         return pipeline;
     }
 
+    @Override
     public QueryResult execute(QueryRequest request) {
 
         if (request == null) {
