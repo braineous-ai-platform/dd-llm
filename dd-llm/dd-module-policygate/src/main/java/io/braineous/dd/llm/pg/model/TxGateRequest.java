@@ -1,4 +1,4 @@
-package io.braineous.dd.llm.transaction.model;
+package io.braineous.dd.llm.pg.model;
 
 import io.braineous.dd.llm.core.model.LLMDDBaseModel;
 

@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.braineous.dd.llm.core.model.Why;
+import io.braineous.dd.llm.pg.model.TxGateRequest;
+import io.braineous.dd.llm.pg.model.TxStepResult;
 import io.braineous.dd.llm.query.client.QueryResult;
 import org.junit.jupiter.api.Test;
 

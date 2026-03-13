@@ -2,6 +2,7 @@ package io.braineous.dd.llm.transaction.model;
 
 import io.braineous.dd.llm.core.model.LLMDDBaseModel;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
+import io.braineous.dd.llm.pg.model.TxStepResult;
 
 import java.util.ArrayList;
 import java.util.List;

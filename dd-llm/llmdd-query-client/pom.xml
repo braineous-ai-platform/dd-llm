@@ -38,7 +38,7 @@
       <version>1.0.0</version>
     </dependency>
 
-
+    <!--
     <dependency>
       <groupId>io.github.braineous-ai-platform</groupId>
       <artifactId>dd-module-policygate</artifactId>
@@ -50,6 +50,7 @@
       <artifactId>dd-module-commit-router</artifactId>
       <version>1.0.0</version>
     </dependency>
+    -->
 
 
 

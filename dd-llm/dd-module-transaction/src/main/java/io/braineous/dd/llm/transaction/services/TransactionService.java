@@ -3,12 +3,12 @@ package io.braineous.dd.llm.transaction.services;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
+import io.braineous.dd.llm.pg.model.TxGateRequest;
+import io.braineous.dd.llm.pg.model.TxStepResult;
+import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
 import io.braineous.dd.llm.query.client.QueryExecutor;
 import io.braineous.dd.llm.query.client.QueryResult;
-import io.braineous.dd.llm.transaction.model.TxExecutionRequest;
-import io.braineous.dd.llm.transaction.model.TxExecutionResult;
-import io.braineous.dd.llm.transaction.model.TxStepRequest;
-import io.braineous.dd.llm.transaction.model.TxStepResult;
+import io.braineous.dd.llm.transaction.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -22,6 +22,9 @@ public class TransactionService {
     private TxQueryRequestTranslator translator;
 
     private QueryExecutor queryExecutor;
+
+    @Inject
+    private PolicyGateOrchestrator policyGateOrchestrator;
 
     public TransactionService() {
     }
@@ -59,7 +62,33 @@ public class TransactionService {
         // ---------------------------------------------------------
         // STEP 2 — Execute steps in order (v0)
         // ---------------------------------------------------------
+        TxExecutionResult result = this.executeTxSteps(request);
 
+        //---------------------------------------------------
+        // STEP 3 - Build TxGateRequest
+        //---------------------------------------------------
+        TxGateRequest gateRequest = this.createPolicyGateRequest(request, result);
+
+        //---------------------------------------------------
+        // STEP 4 - PolicyGate invocation
+        //---------------------------------------------------
+
+        //---------------------------------------------------
+        // STEP 5 - Final result stabilization
+        //---------------------------------------------------
+
+        //---------------------------------------------------
+        // STEP 6 - Step result integrity checks
+        //---------------------------------------------------
+
+        // remaining steps (gate + final) not implemented yet
+        return result;
+    }
+
+    //---------------------------------------------------------------------------------------
+    private TxExecutionResult executeTxSteps(
+            TxExecutionRequest request
+            ){
         TxExecutionResult result = new TxExecutionResult();
         result.setDescription(request.getDescription());
         result.setPolicyRef(request.getPolicyRef());
@@ -102,7 +131,19 @@ public class TransactionService {
             }
         }
 
-        // remaining steps (gate + final) not implemented yet
         return result;
+    }
+
+    private TxGateRequest createPolicyGateRequest(TxExecutionRequest request,
+                                                  TxExecutionResult result) {
+
+        TxGateRequest gateRequest = new TxGateRequest();
+
+        gateRequest.setDescription(request.getDescription());
+        gateRequest.setCommitOrder(request.getCommitOrder());
+        gateRequest.setPolicyRef(request.getPolicyRef());
+        gateRequest.setStepResults(result.getStepResults());
+
+        return gateRequest;
     }
 }
