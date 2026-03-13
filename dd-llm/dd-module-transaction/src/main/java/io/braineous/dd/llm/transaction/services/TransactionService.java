@@ -86,6 +86,7 @@ public class TransactionService {
         //---------------------------------------------------
         // STEP 6 - Step result integrity checks
         //---------------------------------------------------
+        this.assertTxResultConsistency(request, result);
 
         // remaining steps (gate + final) not implemented yet in v0
 
@@ -152,5 +153,84 @@ public class TransactionService {
         gateRequest.setStepResults(result.getStepResults());
 
         return gateRequest;
+    }
+
+    private void assertTxResultConsistency(TxExecutionRequest request,
+                                           TxExecutionResult result) {
+
+        if (request == null) {
+            throw new IllegalStateException("request cannot be null");
+        }
+
+        if (result == null) {
+            throw new IllegalStateException("result cannot be null");
+        }
+
+        List<TxStepRequest> requestSteps = request.getSteps();
+        List<TxStepResult> resultSteps = result.getStepResults();
+
+        if (requestSteps == null) {
+            requestSteps = java.util.Collections.emptyList();
+        }
+
+        if (resultSteps == null) {
+            throw new IllegalStateException("result.stepResults cannot be null");
+        }
+
+        if (resultSteps.size() > requestSteps.size()) {
+            throw new IllegalStateException("result.stepResults cannot exceed request.steps");
+        }
+
+        for (int i = 0; i < resultSteps.size(); i++) {
+            TxStepRequest requestStep = requestSteps.get(i);
+            TxStepResult resultStep = resultSteps.get(i);
+
+            if (requestStep == null) {
+                throw new IllegalStateException("request.steps contains null at index " + i);
+            }
+
+            if (resultStep == null) {
+                throw new IllegalStateException("result.stepResults contains null at index " + i);
+            }
+
+            String requestStepId = requestStep.getId();
+            String resultStepId = resultStep.getId();
+
+            if (requestStepId == null && resultStepId == null) {
+                continue;
+            }
+
+            if (requestStepId == null || resultStepId == null || !requestStepId.equals(resultStepId)) {
+                throw new IllegalStateException("result.stepResults out of sync with request.steps at index " + i);
+            }
+        }
+
+        List<String> requestCommitOrder = request.getCommitOrder();
+        List<String> resultCommitOrder = result.getCommitOrder();
+
+        if (requestCommitOrder == null) {
+            requestCommitOrder = java.util.Collections.emptyList();
+        }
+
+        if (resultCommitOrder == null) {
+            throw new IllegalStateException("result.commitOrder cannot be null");
+        }
+
+        if (requestCommitOrder.size() != resultCommitOrder.size()) {
+            throw new IllegalStateException("result.commitOrder size mismatch");
+        }
+
+        for (int i = 0; i < requestCommitOrder.size(); i++) {
+            String requestCommitId = requestCommitOrder.get(i);
+            String resultCommitId = resultCommitOrder.get(i);
+
+            if (requestCommitId == null && resultCommitId == null) {
+                continue;
+            }
+
+            if (requestCommitId == null || resultCommitId == null || !requestCommitId.equals(resultCommitId)) {
+                throw new IllegalStateException("result.commitOrder out of sync with request.commitOrder at index " + i);
+            }
+        }
     }
 }
