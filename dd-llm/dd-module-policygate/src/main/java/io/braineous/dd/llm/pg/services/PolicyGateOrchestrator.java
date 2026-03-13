@@ -9,6 +9,8 @@ import io.braineous.dd.llm.cr.model.CommitRequest;
 import io.braineous.dd.llm.cr.services.CommitProcessor;
 import io.braineous.dd.llm.pg.model.ExecutionView;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
+import io.braineous.dd.llm.pg.model.TxGateRequest;
+import io.braineous.dd.llm.pg.model.TxStepResult;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,34 @@ public class PolicyGateOrchestrator {
     CommitProcessor commitProcessor;
 
     public PolicyGateOrchestrator() {
+    }
+
+    //----------------------------------------------------------------
+    //----------------------------------------------------------------
+    public PolicyGateResult evaluate(TxGateRequest request) {
+
+        if (request == null) {
+            return PolicyGateResult.fail(null, "txGateRequest is required");
+        }
+
+        java.util.List<TxStepResult> stepResults = request.getStepResults();
+        if (stepResults == null || stepResults.isEmpty()) {
+            return PolicyGateResult.fail(null, "stepResults are required");
+        }
+
+        for (int i = 0; i < stepResults.size(); i++) {
+            TxStepResult stepResult = stepResults.get(i);
+
+            if (stepResult == null) {
+                return PolicyGateResult.fail(null, "stepResult is required");
+            }
+
+            if (!stepResult.isOk()) {
+                return PolicyGateResult.fail(stepResult.getId(), "transaction step failed");
+            }
+        }
+
+        return PolicyGateResult.ok(null, "approved");
     }
 
     // ----------------------------------------------------------------

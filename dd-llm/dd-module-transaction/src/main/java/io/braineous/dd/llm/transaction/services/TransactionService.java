@@ -30,9 +30,12 @@ public class TransactionService {
     }
 
     // UT seam
-    public TransactionService(TxQueryRequestTranslator translator, QueryExecutor queryExecutor) {
+    public TransactionService(TxQueryRequestTranslator translator,
+                              QueryExecutor queryExecutor,
+                              PolicyGateOrchestrator policyGateOrchestrator) {
         this.translator = translator;
         this.queryExecutor = queryExecutor;
+        this.policyGateOrchestrator = policyGateOrchestrator;
     }
 
     public TxExecutionResult execute(TxExecutionRequest request) {
@@ -72,6 +75,9 @@ public class TransactionService {
         //---------------------------------------------------
         // STEP 4 - PolicyGate invocation
         //---------------------------------------------------
+        PolicyGateResult gateResult = this.policyGateOrchestrator.evaluate(gateRequest);
+        result.setGateResult(gateResult);
+        Console.log("tx.gate.result", gateResult != null ? gateResult.toJsonString() : null);
 
         //---------------------------------------------------
         // STEP 5 - Final result stabilization
@@ -81,7 +87,8 @@ public class TransactionService {
         // STEP 6 - Step result integrity checks
         //---------------------------------------------------
 
-        // remaining steps (gate + final) not implemented yet
+        // remaining steps (gate + final) not implemented yet in v0
+
         return result;
     }
 

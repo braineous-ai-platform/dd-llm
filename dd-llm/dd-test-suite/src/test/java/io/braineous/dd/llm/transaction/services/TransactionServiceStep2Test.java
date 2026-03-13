@@ -3,6 +3,7 @@ package io.braineous.dd.llm.transaction.services;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.core.model.Why;
+import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
 import io.braineous.dd.llm.query.client.QueryExecutor;
 import io.braineous.dd.llm.query.client.QueryResult;
 import io.braineous.dd.llm.transaction.model.TxExecutionRequest;
@@ -42,7 +43,9 @@ public class TransactionServiceStep2Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor);
+        PolicyGateOrchestrator policyGateOrchestrator = new PolicyGateOrchestrator();
+
+        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("tx");
@@ -108,7 +111,9 @@ public class TransactionServiceStep2Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor);
+        PolicyGateOrchestrator policyGateOrchestrator = new PolicyGateOrchestrator();
+
+        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
 
@@ -167,7 +172,9 @@ public class TransactionServiceStep2Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor);
+        PolicyGateOrchestrator policyGateOrchestrator = new PolicyGateOrchestrator();
+
+        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("d");
