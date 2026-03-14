@@ -174,7 +174,9 @@ You verified that:
 To see a full successful reasoning + approval + mutation flow with seeded graph data, continue to:
 
 👉 [FNO.md](FNO.md) — Flight Network Optimization reference application  
-👉 [CGO.md](CGO.md) — Graph substrate and ingestion model
+👉 [CGO.md](CGO.md) — Graph substrate and ingestion model  
+👉 [AI_TRANSACTION_RUNTIME.md](AI_TRANSACTION_RUNTIME.md) — The transient execution container that coordinates LLM query execution inside the Spine
+
 
 
 
