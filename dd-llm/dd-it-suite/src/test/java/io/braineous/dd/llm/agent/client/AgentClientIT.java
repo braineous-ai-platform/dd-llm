@@ -256,7 +256,7 @@ public class AgentClientIT {
         }
 
         @Override
-        public String invokeLlm(JsonObject prompt) {
+        public String invokeLlm(QueryRequest request, JsonObject prompt) {
 
             return "{\"result\":{\"ok\":true," +
                     "\"code\":\"response.contract.ok\"," +

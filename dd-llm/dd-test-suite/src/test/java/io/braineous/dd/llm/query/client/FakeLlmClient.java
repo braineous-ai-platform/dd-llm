@@ -2,6 +2,7 @@ package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import ai.braineous.rag.prompt.cgo.prompt.LlmClient;
+import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import com.google.gson.JsonObject;
 
 /**
@@ -18,7 +19,7 @@ public final class FakeLlmClient implements LlmClient {
     }
 
     @Override
-    public String executePrompt(LlmAdapter llmAdapter,JsonObject prompt) {
+    public String executePrompt(LlmAdapter llmAdapter, QueryRequest queryRequest, JsonObject prompt) {
         this.lastPrompt = prompt;
         return response;
     }

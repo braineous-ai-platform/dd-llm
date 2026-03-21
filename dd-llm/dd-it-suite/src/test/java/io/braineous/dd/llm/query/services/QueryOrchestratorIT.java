@@ -871,7 +871,7 @@ public class QueryOrchestratorIT {
         }
 
         @Override
-        public String invokeLlm(JsonObject prompt) {
+        public String invokeLlm(QueryRequest request,JsonObject prompt) {
             return raw;
         }
     }
@@ -894,14 +894,14 @@ public class QueryOrchestratorIT {
     private static class FakeLlmAdapter extends LlmAdapter {
 
         @Override
-        public String invokeLlm(JsonObject prompt) {
+        public String invokeLlm(QueryRequest request,JsonObject prompt) {
             return "{\"result\":{\"ok\":true,\"code\":\"response.contract.ok\",\"message\":\"ok\",\"stage\":\"llm_response_validation\",\"anchorId\":\"Flight:F100\",\"metadata\":{}}}";
         }
     }
 
     private static class ErrorLlmAdapter extends LlmAdapter {
         @Override
-        public String invokeLlm(JsonObject prompt) {
+        public String invokeLlm(QueryRequest request,JsonObject prompt) {
             return "{\"garbage\":true}";
         }
     }
@@ -919,7 +919,7 @@ public class QueryOrchestratorIT {
         }
 
         @Override
-        public String invokeLlm(JsonObject prompt) {
+        public String invokeLlm(QueryRequest request, JsonObject prompt) {
             return "{\"result\":{\"ok\":true,\"code\":\"response.contract.ok\",\"message\":\"ok\",\"stage\":\"llm_response_validation\",\"anchorId\":\""
                     + anchorId
                     + "\",\"metadata\":{}}}";
