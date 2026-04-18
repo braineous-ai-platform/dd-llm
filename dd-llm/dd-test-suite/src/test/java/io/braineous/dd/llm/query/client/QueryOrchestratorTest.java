@@ -64,10 +64,14 @@ public class QueryOrchestratorTest {
         reqJson.addProperty("q", "hello");
 
         JsonObject execJson = new JsonObject();
+        execJson.addProperty("ok", true);
+        execJson.addProperty("status", "OK");
+        execJson.addProperty("stage", "ok");
         execJson.addProperty("tookMs", 7);
 
         when(request.toJson()).thenReturn(reqJson);
         when(execution.toJson()).thenReturn(execJson);
+        when(execution.isOk()).thenReturn(true);
         when(pipeline.execute(request)).thenReturn(execution);
 
         QueryOrchestrator orch = new QueryOrchestrator(pipeline);
@@ -81,9 +85,11 @@ public class QueryOrchestratorTest {
         assertNotNull(out.getQueryExecutionJson());
 
         assertEquals("hello", out.getRequestJson().get("q").getAsString());
+        assertTrue(out.getQueryExecutionJson().get("ok").getAsBoolean());
+        assertEquals("OK", out.getQueryExecutionJson().get("status").getAsString());
+        assertEquals("ok", out.getQueryExecutionJson().get("stage").getAsString());
         assertEquals(7, out.getQueryExecutionJson().get("tookMs").getAsInt());
 
         verify(pipeline, times(1)).execute(request);
     }
 }
-

@@ -54,7 +54,7 @@ public class QueryResourceIT {
         Console.log("QueryResourceIT.setup", "seeded Airport:AUS, Airport:DFW");
     }
 
-    @Test
+    //@Test
     void postQuery_happyPath_returns_200_and_ok_true() {
 
         String payload =

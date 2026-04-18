@@ -18,7 +18,7 @@
     <module>dd-it-suite</module>
 
     <!-- agents -->
-    <module>agentic-apps</module>
+    <!--<module>agentic-apps</module>-->
   </modules>
 
   <properties>

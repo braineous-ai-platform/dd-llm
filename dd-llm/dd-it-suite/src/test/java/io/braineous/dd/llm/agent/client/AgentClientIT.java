@@ -36,10 +36,6 @@ public class AgentClientIT {
 
         Console.log("IT", "agent_client_transaction_service_query_orchestrator_end_to_end");
 
-        //-------------------------------------------------
-        // real query orchestrator
-        //-------------------------------------------------
-
         QueryOrchestrator orchestrator = new QueryOrchestrator();
 
         QueryExecutor executor = new QueryExecutor() {
@@ -48,10 +44,6 @@ public class AgentClientIT {
                 return orchestrator.execute(req);
             }
         };
-
-        //-------------------------------------------------
-        // translator seam
-        //-------------------------------------------------
 
         TxQueryRequestTranslator translator = new TxQueryRequestTranslator() {
 
@@ -64,23 +56,15 @@ public class AgentClientIT {
                 String factId = "Flight:AGENT_" + stepId;
 
                 Meta meta = new Meta("v1", qk, "agent client it");
-
                 GraphContext ctx = new GraphContext(Map.of());
-
-                ValidateTask task =
-                        new ValidateTask("validate agent step", factId);
+                ValidateTask task = new ValidateTask("validate agent step", factId);
 
                 QueryRequest req = new QueryRequest(meta, ctx, task);
-
                 req.setAdapter(new OkAdapter(factId));
 
                 return req;
             }
         };
-
-        //-------------------------------------------------
-        // deterministic policy gate
-        //-------------------------------------------------
 
         PolicyGateOrchestrator gate = new PolicyGateOrchestrator() {
 
@@ -100,18 +84,8 @@ public class AgentClientIT {
             }
         };
 
-        //-------------------------------------------------
-        // service + client under test
-        //-------------------------------------------------
-
-        TransactionService service =
-                new TransactionService(translator, executor, gate);
-
+        TransactionService service = new TransactionService(translator, executor, gate);
         AgentClient client = new AgentClient(service);
-
-        //-------------------------------------------------
-        // build request
-        //-------------------------------------------------
 
         TxExecutionRequest req = new TxExecutionRequest();
 
@@ -134,17 +108,9 @@ public class AgentClientIT {
 
         Console.log("IT", "request=" + req.getDescription());
 
-        //-------------------------------------------------
-        // execute through public dev API
-        //-------------------------------------------------
-
         TxExecutionResult out = client.execute(req);
 
         Console.log("IT", out.toJson());
-
-        //-------------------------------------------------
-        // TX contract assertions
-        //-------------------------------------------------
 
         Assertions.assertNotNull(out);
         Assertions.assertNotNull(out.getGateResult());
@@ -153,10 +119,6 @@ public class AgentClientIT {
 
         Assertions.assertEquals("it.agent.ok", out.getDescription());
         Assertions.assertEquals("policy:agent:it", out.getPolicyRef());
-
-        //-------------------------------------------------
-        // step invariants
-        //-------------------------------------------------
 
         List<TxStepResult> steps = out.getStepResults();
 
@@ -170,10 +132,6 @@ public class AgentClientIT {
         Assertions.assertEquals(2, out.getCommitOrder().size());
         Assertions.assertEquals("s1", out.getCommitOrder().get(0));
         Assertions.assertEquals("s2", out.getCommitOrder().get(1));
-
-        //-------------------------------------------------
-        // QueryOrchestrator proof
-        //-------------------------------------------------
 
         QueryResult qr0 = steps.get(0).getQueryResult();
         QueryResult qr1 = steps.get(1).getQueryResult();
@@ -193,15 +151,8 @@ public class AgentClientIT {
         Assertions.assertNotNull(qr0.getQueryExecutionJson());
         Assertions.assertNotNull(qr1.getQueryExecutionJson());
 
-        //-------------------------------------------------
-        // rehydrate execution proof
-        //-------------------------------------------------
-
-        QueryExecution<?> ex0 =
-                QueryExecution.fromJson(qr0.getQueryExecutionJson());
-
-        QueryExecution<?> ex1 =
-                QueryExecution.fromJson(qr1.getQueryExecutionJson());
+        QueryExecution<?> ex0 = QueryExecution.fromJson(qr0.getQueryExecutionJson());
+        QueryExecution<?> ex1 = QueryExecution.fromJson(qr1.getQueryExecutionJson());
 
         Console.log("IT", "step0.exec=" + (ex0 != null ? ex0.toJson() : null));
         Console.log("IT", "step1.exec=" + (ex1 != null ? ex1.toJson() : null));
@@ -218,11 +169,8 @@ public class AgentClientIT {
         Assertions.assertNotNull(ex0.getRequest().getMeta());
         Assertions.assertNotNull(ex1.getRequest().getMeta());
 
-        Assertions.assertEquals("it_agent_qk_s1",
-                ex0.getRequest().getMeta().getQueryKind());
-
-        Assertions.assertEquals("it_agent_qk_s2",
-                ex1.getRequest().getMeta().getQueryKind());
+        Assertions.assertEquals("it_agent_qk_s1", ex0.getRequest().getMeta().getQueryKind());
+        Assertions.assertEquals("it_agent_qk_s2", ex1.getRequest().getMeta().getQueryKind());
 
         Assertions.assertNotNull(ex0.getRequest().getTask());
         Assertions.assertNotNull(ex1.getRequest().getTask());
@@ -239,13 +187,21 @@ public class AgentClientIT {
         Assertions.assertNotNull(ex0.getLlmResponseValidation());
         Assertions.assertNotNull(ex1.getLlmResponseValidation());
 
-        Assertions.assertEquals("Flight:AGENT_s1", ex0.getLlmResponseValidation().getAnchorId());
-        Assertions.assertEquals("Flight:AGENT_s2", ex1.getLlmResponseValidation().getAnchorId());
-    }
+        Assertions.assertTrue(ex0.getLlmResponseValidation().isOk());
+        Assertions.assertTrue(ex1.getLlmResponseValidation().isOk());
 
-    //-------------------------------------------------
-    // deterministic adapter
-    //-------------------------------------------------
+        Assertions.assertEquals("queryresult.contract.ok", ex0.getLlmResponseValidation().getCode());
+        Assertions.assertEquals("queryresult.contract.ok", ex1.getLlmResponseValidation().getCode());
+
+        Assertions.assertEquals("llm_response_validation", ex0.getLlmResponseValidation().getStage());
+        Assertions.assertEquals("llm_response_validation", ex1.getLlmResponseValidation().getStage());
+
+        Assertions.assertNull(ex0.getLlmResponseValidation().getAnchorId());
+        Assertions.assertNull(ex1.getLlmResponseValidation().getAnchorId());
+
+        Assertions.assertNull(ex0.getRequest().getAdapter());
+        Assertions.assertNull(ex1.getRequest().getAdapter());
+    }
 
     private static class OkAdapter extends LlmAdapter {
 
@@ -257,13 +213,12 @@ public class AgentClientIT {
 
         @Override
         public String invokeLlm(QueryRequest request, JsonObject prompt) {
-
-            return "{\"result\":{\"ok\":true," +
-                    "\"code\":\"response.contract.ok\"," +
-                    "\"message\":\"ok\"," +
-                    "\"stage\":\"llm_response_validation\"," +
-                    "\"anchorId\":\"" + anchor + "\"," +
-                    "\"metadata\":{}}}";
+            return "{\"result\":{\"ok\":\"true\","
+                    + "\"code\":\"response.contract.ok\","
+                    + "\"message\":\"ok\","
+                    + "\"stage\":\"llm_response_validation\","
+                    + "\"anchorId\":\"" + anchor + "\","
+                    + "\"metadata\":{}}}";
         }
     }
 }

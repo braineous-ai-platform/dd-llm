@@ -52,6 +52,17 @@ public class QueryOrchestrator implements QueryExecutor{
             return QueryResult.fail(new Why(WHY_CODE_NULL_EXEC, WHY_MSG_NULL_EXEC));
         }
 
+        if (!queryExecution.isOk()) {
+            return QueryResult.fail(
+                    request.toJson(),
+                    queryExecution.toJson(),
+                    new Why(
+                            "DD-LLM-QUERYORCH-EXECUTION_FAILED",
+                            queryExecution.getStatus()
+                    )
+            );
+        }
+
         return QueryResult.ok(request.toJson(), queryExecution.toJson());
     }
 }

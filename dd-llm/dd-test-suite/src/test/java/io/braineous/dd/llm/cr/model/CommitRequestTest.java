@@ -5,7 +5,6 @@ import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
-import io.braineous.dd.llm.query.client.QueryClient;
 import io.braineous.dd.llm.query.client.QueryOrchestrator;
 import io.braineous.dd.llm.query.client.QueryResult;
 import org.junit.jupiter.api.Test;
@@ -140,7 +139,6 @@ public class CommitRequestTest {
         Console.log("CR_UT/canonicalJsonString_key_order", "done");
     }
 
-
     @Test
     void computeCommitId_is_deterministic_for_same_request() {
         Console.log("CR_UT/computeCommitId_deterministic", "start");
@@ -178,13 +176,11 @@ public class CommitRequestTest {
         p.addProperty("a", 1);
         r.setPayload(p);
 
-
-        p.addProperty("a", 2); // mutate payload
+        p.addProperty("a", 2);
         r.setPayload(p);
 
         Console.log("CR_UT/computeCommitId_payload_change", "done");
     }
-
 
     @Test
     void fromJsonString_returns_null_on_blank_or_non_object() {
@@ -308,10 +304,14 @@ public class CommitRequestTest {
             reqJson.addProperty("q", "hello");
 
             JsonObject execJson = new JsonObject();
+            execJson.addProperty("ok", true);
+            execJson.addProperty("status", "OK");
+            execJson.addProperty("stage", "ok");
             execJson.addProperty("tookMs", 7);
 
             when(request.toJson()).thenReturn(reqJson);
             when(execution.toJson()).thenReturn(execJson);
+            when(execution.isOk()).thenReturn(true);
             when(pipeline.execute(request)).thenReturn(execution);
 
             QueryOrchestrator orch = new QueryOrchestrator(pipeline);
@@ -325,10 +325,13 @@ public class CommitRequestTest {
             assertNotNull(out.getQueryExecutionJson());
 
             assertEquals("hello", out.getRequestJson().get("q").getAsString());
+            assertTrue(out.getQueryExecutionJson().get("ok").getAsBoolean());
+            assertEquals("OK", out.getQueryExecutionJson().get("status").getAsString());
+            assertEquals("ok", out.getQueryExecutionJson().get("stage").getAsString());
             assertEquals(7, out.getQueryExecutionJson().get("tookMs").getAsInt());
 
             verify(pipeline, times(1)).execute(request);
+            verifyNoMoreInteractions(pipeline);
         }
     }
 }
-

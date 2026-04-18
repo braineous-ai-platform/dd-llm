@@ -229,8 +229,20 @@ public class TransactionServiceIT {
         Assertions.assertNotNull(ex0.getLlmResponseValidation());
         Assertions.assertNotNull(ex1.getLlmResponseValidation());
 
-        Assertions.assertEquals("Flight:TX_s1", ex0.getLlmResponseValidation().getAnchorId());
-        Assertions.assertEquals("Flight:TX_s2", ex1.getLlmResponseValidation().getAnchorId());
+        Assertions.assertTrue(ex0.getLlmResponseValidation().isOk());
+        Assertions.assertTrue(ex1.getLlmResponseValidation().isOk());
+
+        Assertions.assertEquals("queryresult.contract.ok", ex0.getLlmResponseValidation().getCode());
+        Assertions.assertEquals("queryresult.contract.ok", ex1.getLlmResponseValidation().getCode());
+
+        Assertions.assertEquals("llm_response_validation", ex0.getLlmResponseValidation().getStage());
+        Assertions.assertEquals("llm_response_validation", ex1.getLlmResponseValidation().getStage());
+
+        Assertions.assertNull(ex0.getLlmResponseValidation().getAnchorId());
+        Assertions.assertNull(ex1.getLlmResponseValidation().getAnchorId());
+
+        Assertions.assertNull(ex0.getRequest().getAdapter());
+        Assertions.assertNull(ex1.getRequest().getAdapter());
     }
 
 
@@ -248,14 +260,12 @@ public class TransactionServiceIT {
 
         @Override
         public String invokeLlm(QueryRequest request, JsonObject prompt) {
-
-            return "{\"result\":{\"ok\":true," +
-                    "\"code\":\"response.contract.ok\"," +
-                    "\"message\":\"ok\"," +
-                    "\"stage\":\"llm_response_validation\"," +
-                    "\"anchorId\":\"" + anchor + "\"," +
-                    "\"metadata\":{}}}";
+            return "{\"result\":{\"ok\":\"true\","
+                    + "\"code\":\"response.contract.ok\","
+                    + "\"message\":\"ok\","
+                    + "\"stage\":\"llm_response_validation\","
+                    + "\"anchorId\":\"" + anchor + "\","
+                    + "\"metadata\":{}}}";
         }
     }
 }
-

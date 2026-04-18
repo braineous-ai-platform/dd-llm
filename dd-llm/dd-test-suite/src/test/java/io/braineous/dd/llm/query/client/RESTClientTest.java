@@ -101,7 +101,7 @@ public class RESTClientTest {
         QueryClient client = new RESTClient();
 
         // adapter mocked; whatever QueryOrchestrator calls will return null by default
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
+        LlmAdapter adapter = new FakeLlmAdapter();
 
         String queryKind = "validate_flight_airports";
         String query = "Validate that the selected flight has valid departure and arrival airport codes based on the airport nodes in the graph. "
@@ -129,7 +129,13 @@ public class RESTClientTest {
 
         assertTrue(result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").get("ok").getAsBoolean() == false);
 
-        assertEquals("response.contract.empty", result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").get("code").getAsString());
+        //assertEquals("response.contract.empty",
+        //        result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").
+        //                get("code").getAsString());
+
+        assertEquals("queryresult.contract.empty",
+                result.getQueryExecutionJson().
+                        getAsJsonObject("llmResponseValidation").get("code").getAsString());
 
         assertTrue(result.getQueryExecutionJson().get("rawResponse").isJsonNull());
     }
