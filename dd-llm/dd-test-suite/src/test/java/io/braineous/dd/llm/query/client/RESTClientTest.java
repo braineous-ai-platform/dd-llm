@@ -164,6 +164,92 @@ public class RESTClientTest {
         }
     }
 
+    @Test
+    public void query_sql_when_null_returns_null() {
+
+        QueryClient client = new RESTClient();
+
+        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
+
+        QueryResult r = client.query(adapter, (String) null);
+
+        assertNull(r);
+    }
+
+    @Test
+    public void query_sql_when_blank_returns_null() {
+
+        QueryClient client = new RESTClient();
+
+        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
+
+        QueryResult r = client.query(adapter, "   ");
+
+        assertNull(r);
+    }
+
+    @Test
+    public void query_sql_valid_flow_delegates_and_returns_result_shape() {
+
+        QueryClient client = new RESTClient();
+
+        LlmAdapter adapter = new FakeLlmAdapter();
+
+        String sql = ""
+                + "select ok, code "
+                + "from llm "
+                + "where factId = 'Flight:AUS-DFW:001' "
+                + "and relatedFactIds = 'Airport:AUS,Airport:DFW' "
+                + "control decision_mode = 'validate_flight_airports'";
+
+        QueryResult result = null;
+
+        try {
+            result = client.query(adapter, sql);
+        } catch (Exception e) {
+            fail("SQL path should not throw. Threw: " + e.getClass().getName());
+        }
+
+        assertNotNull(result);
+        assertNotNull(result.getQueryExecutionJson());
+
+        assertEquals("ERROR", result.getQueryExecutionJson().get("status").getAsString());
+        assertEquals("llm_response", result.getQueryExecutionJson().get("stage").getAsString());
+
+        assertTrue(result.getQueryExecutionJson()
+                .getAsJsonObject("llmResponseValidation")
+                .get("ok").getAsBoolean() == false);
+
+        assertEquals("queryresult.contract.empty",
+                result.getQueryExecutionJson()
+                        .getAsJsonObject("llmResponseValidation")
+                        .get("code").getAsString());
+    }
+
+    @Test
+    public void query_sql_without_relatedFacts_still_works() {
+
+        QueryClient client = new RESTClient();
+
+        LlmAdapter adapter = new FakeLlmAdapter();
+
+        String sql = ""
+                + "select ok "
+                + "from llm "
+                + "where factId = 'Flight:AUS-DFW:001'";
+
+        QueryResult result = null;
+
+        try {
+            result = client.query(adapter, sql);
+        } catch (Exception e) {
+            fail("SQL minimal path should not throw.");
+        }
+
+        assertNotNull(result);
+        assertNotNull(result.getQueryExecutionJson());
+    }
+
     // ---------------- seeding (must stay consistent across all tests) ----------------
 
     private void seedAirportsAndFlight(GraphBuilder graphBuilder) {

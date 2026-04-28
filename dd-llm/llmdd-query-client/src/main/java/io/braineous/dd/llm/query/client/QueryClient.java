@@ -15,4 +15,6 @@ public interface QueryClient {
                              String query,
                              String fact,
                              List<String> relatedFacts);
+
+    QueryResult query(LlmAdapter adapter, String sql);
 }
