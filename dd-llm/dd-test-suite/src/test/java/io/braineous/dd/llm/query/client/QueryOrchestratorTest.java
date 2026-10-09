@@ -72,6 +72,7 @@ public class QueryOrchestratorTest {
         when(request.toJson()).thenReturn(reqJson);
         when(execution.toJson()).thenReturn(execJson);
         when(execution.isOk()).thenReturn(true);
+        when(execution.getRawResponse()).thenReturn("{\"result\":{\"ok\":\"true\"}}");
         when(pipeline.execute(request)).thenReturn(execution);
 
         QueryOrchestrator orch = new QueryOrchestrator(pipeline);

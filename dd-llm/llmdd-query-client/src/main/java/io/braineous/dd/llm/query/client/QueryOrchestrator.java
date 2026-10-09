@@ -16,6 +16,9 @@ public class QueryOrchestrator implements QueryExecutor{
     private static final String WHY_CODE_NULL_EXEC = ID_PREFIX + "-FAIL-execution_null";
     private static final String WHY_MSG_NULL_EXEC  = "queryExecution cannot be null";
 
+    private static final String WHY_CODE_NULL_RAW = ID_PREFIX + "-FAIL-rawResponse_null";
+    private static final String WHY_MSG_NULL_RAW  = "rawResponse cannot be null";
+
     private final CgoQueryPipeline pipeline;
 
     public QueryOrchestrator() {
@@ -52,14 +55,11 @@ public class QueryOrchestrator implements QueryExecutor{
             return QueryResult.fail(new Why(WHY_CODE_NULL_EXEC, WHY_MSG_NULL_EXEC));
         }
 
-        if (!queryExecution.isOk()) {
+        if (queryExecution.getRawResponse() == null) {
             return QueryResult.fail(
                     request.toJson(),
                     queryExecution.toJson(),
-                    new Why(
-                            "DD-LLM-QUERYORCH-EXECUTION_FAILED",
-                            queryExecution.getStatus()
-                    )
+                    new Why(WHY_CODE_NULL_RAW, WHY_MSG_NULL_RAW)
             );
         }
 
