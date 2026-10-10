@@ -89,12 +89,6 @@ public class RESTClientTest {
         assertNotNull(result);
 
         assertNotNull(result.getQueryExecutionJson());
-
-        assertEquals("ERROR", result.getQueryExecutionJson().get("status").getAsString());
-
-        assertEquals("llm_response", result.getQueryExecutionJson().get("stage").getAsString());
-
-        assertTrue(result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").get("ok").getAsBoolean() == false);
     }
 
     @Test

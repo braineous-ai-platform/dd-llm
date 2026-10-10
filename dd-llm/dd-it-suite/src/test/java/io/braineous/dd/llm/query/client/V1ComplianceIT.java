@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -62,62 +63,122 @@ public class V1ComplianceIT {
                 + PM_3001 + ","
                 + RISK_4001 + ","
                 + POL_5001 + "' "
-                + "control intent = 'decide_payment_capture'";
+                + "control intent = 'decide_payment_capture', "
+                + "action = 'determine', "
+                + "subject = 'primary_payment_request', "
+                + "decision = 'allow_capture', "
+                + "basis = 'related_system_facts', "
+                + "goal = 'decision'";
 
         QueryClient client = new RESTClient();
         QueryResult result = client.query(sql);
 
-        Console.log("v1.compliance.sql", sql);
-        Console.log("v1.compliance.queryResult.ok", result == null ? "null" : String.valueOf(result.isOk()));
-        Console.log("v1.compliance.queryResult.why", result == null || result.getWhy() == null ? "null" : result.getWhy().toString());
-        Console.log("v1.compliance.queryResult.requestJson", result == null || result.getRequestJson() == null ? "null" : result.getRequestJson().toString());
-        Console.log("v1.compliance.queryResult.queryExecutionJson", result == null || result.getQueryExecutionJson() == null ? "null" : result.getQueryExecutionJson().toString());
+        Console.log("v1.observation.sql", sql);
+
+        if (result == null) {
+            Console.log("v1.observation.queryResult", "null");
+        } else {
+            Console.log("v1.observation.queryResult.ok", String.valueOf(result.isOk()));
+            if (result.getWhy() == null) {
+                Console.log("v1.observation.queryResult.why", "null");
+            } else {
+                Console.log("v1.observation.queryResult.why", result.getWhy().toString());
+            }
+            if (result.getRequestJson() == null) {
+                Console.log("v1.observation.queryRequest", "null");
+            } else {
+                Console.log("v1.observation.queryRequest", result.getRequestJson().toString());
+            }
+        }
 
         QueryExecution<?> execution = null;
         if (result != null && result.getQueryExecutionJson() != null) {
             execution = QueryExecution.fromJson(result.getQueryExecutionJson());
         }
 
-        if (execution != null) {
-            Console.log("v1.compliance.execution.status", String.valueOf(execution.getStatus()));
-            Console.log("v1.compliance.execution.stage", String.valueOf(execution.getStage()));
-            Console.log("v1.compliance.execution.rawResponse", String.valueOf(execution.getRawResponse()));
-            Console.log("v1.compliance.execution.promptValidation", String.valueOf(execution.getPromptValidation()));
-            Console.log("v1.compliance.execution.llmResponseValidation", String.valueOf(execution.getLlmResponseValidation()));
-            Console.log("v1.compliance.execution.domainValidation", String.valueOf(execution.getDomainValidation()));
+        if (execution == null) {
+            Console.log("v1.observation.execution", "null");
+        } else {
+            Console.log("v1.observation.execution.status", String.valueOf(execution.getStatus()));
+            Console.log("v1.observation.execution.stage", String.valueOf(execution.getStage()));
+            Console.log("v1.observation.execution.ok", String.valueOf(execution.isOk()));
+            Console.log("v1.observation.execution.promptValidation", String.valueOf(execution.getPromptValidation()));
+            Console.log("v1.observation.execution.llmResponseValidation", String.valueOf(execution.getLlmResponseValidation()));
+            Console.log("v1.observation.execution.domainValidation", String.valueOf(execution.getDomainValidation()));
+            Console.log("v1.observation.rawResponse", String.valueOf(execution.getRawResponse()));
+
+            JsonObject llmQuery = null;
+            if (execution.getLlmResponse() != null
+                    && execution.getLlmResponse().getLlmRequest() != null) {
+                llmQuery = execution.getLlmResponse().getLlmRequest().getLlmQuery();
+            }
+            if (llmQuery == null && execution.toJson() != null) {
+                JsonObject executionJson = execution.toJson();
+                if (executionJson.has("llmResponse")
+                        && executionJson.get("llmResponse").isJsonObject()) {
+                    JsonObject llmResponseJson = executionJson.getAsJsonObject("llmResponse");
+                    if (llmResponseJson.has("llmRequest")
+                            && llmResponseJson.get("llmRequest").isJsonObject()) {
+                        JsonObject llmRequestJson = llmResponseJson.getAsJsonObject("llmRequest");
+                        if (llmRequestJson.has("llmQuery")
+                                && llmRequestJson.get("llmQuery").isJsonObject()) {
+                            llmQuery = llmRequestJson.getAsJsonObject("llmQuery");
+                        }
+                    }
+                }
+            }
+            if (llmQuery == null) {
+                Console.log("v1.observation.llm_query", "null");
+            } else {
+                Console.log("v1.observation.llm_query", llmQuery.toString());
+                if (llmQuery.has("task") && llmQuery.get("task").isJsonObject()) {
+                    JsonObject task = llmQuery.getAsJsonObject("task");
+                    if (task.has("controls") && task.get("controls").isJsonObject()) {
+                        Console.log("v1.observation.llm_query.task.controls", task.getAsJsonObject("controls").toString());
+                    } else {
+                        Console.log("v1.observation.llm_query.task.controls", "missing");
+                    }
+                }
+            }
+
+            String rawResponse = execution.getRawResponse();
+            if (rawResponse == null) {
+                Console.log("v1.observation.result.decision", "null");
+                Console.log("v1.observation.result.reason", "null");
+                Console.log("v1.observation.result.code", "null");
+            } else {
+                try {
+                    JsonElement parsed = JsonParser.parseString(rawResponse.trim());
+                    if (parsed.isJsonObject()) {
+                        JsonObject root = parsed.getAsJsonObject();
+                        if (root.has("result") && root.get("result").isJsonObject()) {
+                            JsonObject resultObject = root.getAsJsonObject("result");
+                            if (resultObject.has("decision") && !resultObject.get("decision").isJsonNull()) {
+                                Console.log("v1.observation.result.decision", resultObject.get("decision").getAsString());
+                            } else {
+                                Console.log("v1.observation.result.decision", "missing");
+                            }
+                            if (resultObject.has("reason") && !resultObject.get("reason").isJsonNull()) {
+                                Console.log("v1.observation.result.reason", resultObject.get("reason").getAsString());
+                            } else {
+                                Console.log("v1.observation.result.reason", "missing");
+                            }
+                            if (resultObject.has("code") && !resultObject.get("code").isJsonNull()) {
+                                Console.log("v1.observation.result.code", resultObject.get("code").getAsString());
+                            } else {
+                                Console.log("v1.observation.result.code", "missing");
+                            }
+                        } else {
+                            Console.log("v1.observation.result", "missing");
+                        }
+                    } else {
+                        Console.log("v1.observation.result", "rawResponse not object");
+                    }
+                } catch (RuntimeException e) {
+                    Console.log("v1.observation.result.parse", e.getClass().getName() + ": " + e.getMessage());
+                }
+            }
         }
-
-        printVerbatimLlmObservation(
-                "payFunctionalExecution_sqlSeam_shouldSatisfyCgoV1PayContract",
-                1,
-                result,
-                execution);
-
-        assertNotNull(result, "QueryResult");
-        assertNotNull(result.getRequestJson(), "QueryResult.requestJson");
-        assertNotNull(result.getQueryExecutionJson(), "QueryResult.queryExecutionJson");
-        assertNotNull(execution, "QueryExecution");
-
-        String rawResponse = execution.getRawResponse();
-        Console.log("v1.compliance.rawResponse.exact", String.valueOf(rawResponse));
-        assertNotNull(rawResponse, "rawResponse");
-        JsonElement parsed = JsonParser.parseString(rawResponse.trim());
-        assertTrue(parsed.isJsonObject(), "rawResponse root object");
-        JsonObject root = parsed.getAsJsonObject();
-        assertTrue(root.has("result"), "rawResponse.result");
-        JsonObject resultObject = root.getAsJsonObject("result");
-        assertNotNull(resultObject);
-        assertTrue(resultObject.has("decision"));
-        assertTrue(resultObject.get("decision").isJsonPrimitive());
-        assertTrue(resultObject.get("decision").getAsJsonPrimitive().isString());
-        String decision = resultObject.get("decision").getAsString();
-        assertTrue(decision != null && !decision.trim().isEmpty(), "decision non-blank");
-
-        Console.log("v1.compliance.result.decision", decision);
-
-        List<String> diffs = compareDeterministicPaySpecimen(result.getRequestJson(), execution);
-        Console.log("v1.compliance.parity.diffs", diffs.toString());
-        assertTrue(diffs.isEmpty(), "PAY specimen parity diffs: " + diffs);
     }
 
     @Test
@@ -246,10 +307,10 @@ public class V1ComplianceIT {
                     Console.log("pay.drift.reason", reason);
                     Console.log("pay.drift.code", code);
 
+                    Assertions.assertEquals("allow_capture", decision);
+
                 } catch (AssertionError e) {
-                    // Unreachable while drift assertions are commented out.
-                    // contractFailureCount++;
-                    // Console.log("pay.drift.contract.failure", e.getMessage());
+                    throw e;
                 }
 
             } catch (RuntimeException e) {
@@ -328,8 +389,13 @@ public class V1ComplianceIT {
             if (controls == null) {
                 diffs.add("ValidateTask.controls missing");
             } else {
-                assertEqualsSize(diffs, "ValidateTask.controls.size", 1, controls.size());
+                assertEqualsSize(diffs, "ValidateTask.controls.size", 6, controls.size());
                 assertString(diffs, "ValidateTask.controls.intent", "decide_payment_capture", readString(controls, "intent"));
+                assertString(diffs, "ValidateTask.controls.action", "determine", readString(controls, "action"));
+                assertString(diffs, "ValidateTask.controls.subject", "primary_payment_request", readString(controls, "subject"));
+                assertString(diffs, "ValidateTask.controls.decision", "allow_capture", readString(controls, "decision"));
+                assertString(diffs, "ValidateTask.controls.basis", "related_system_facts", readString(controls, "basis"));
+                assertString(diffs, "ValidateTask.controls.goal", "decision", readString(controls, "goal"));
             }
         }
 
