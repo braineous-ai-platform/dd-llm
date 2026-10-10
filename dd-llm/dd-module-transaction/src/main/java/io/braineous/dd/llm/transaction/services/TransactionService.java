@@ -21,6 +21,7 @@ public class TransactionService {
 
     private TxQueryRequestTranslator translator;
 
+    @Inject
     private QueryExecutor queryExecutor;
 
     @Inject
