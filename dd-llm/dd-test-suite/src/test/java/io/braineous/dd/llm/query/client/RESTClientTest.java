@@ -5,15 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import ai.braineous.cgo.llm.OpenAILlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.Fact;
-import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.models.cgo.graph.Input;
-import com.google.gson.JsonObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class RESTClientTest {
 
@@ -30,10 +26,7 @@ public class RESTClientTest {
 
         QueryClient client = new RESTClient();
 
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
-
         QueryResult r = client.query(
-                adapter,
                 null,
                 "q",
                 "Airport:AUS",
@@ -48,10 +41,7 @@ public class RESTClientTest {
 
         QueryClient client = new RESTClient();
 
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
-
         QueryResult r = client.query(
-                adapter,
                 "validate_flight_airports",
                 "   ",
                 "Airport:AUS",
@@ -66,10 +56,7 @@ public class RESTClientTest {
 
         QueryClient client = new RESTClient();
 
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
-
         QueryResult r = client.query(
-                adapter,
                 "validate_flight_airports",
                 "Validate airports",
                 "   ",
@@ -80,28 +67,9 @@ public class RESTClientTest {
     }
 
     @Test
-    public void query_when_adapter_null_returns_null() {
+    public void query_when_seededGraph_doesNotThrow_and_returnsResult() {
 
         QueryClient client = new RESTClient();
-
-        QueryResult r = client.query(
-                null,
-                "validate_flight_airports",
-                "Validate airports",
-                "Airport:AUS",
-                new ArrayList<String>()
-        );
-
-        assertNull(r);
-    }
-
-    @Test
-    public void query_when_seededGraph_and_adapterProvided_doesNotThrow_and_returnsNullIfOrchestratorReturnsNull() {
-
-        QueryClient client = new RESTClient();
-
-        // adapter mocked; whatever QueryOrchestrator calls will return null by default
-        LlmAdapter adapter = new FakeLlmAdapter();
 
         String queryKind = "validate_flight_airports";
         String query = "Validate that the selected flight has valid departure and arrival airport codes based on the airport nodes in the graph. "
@@ -113,12 +81,11 @@ public class RESTClientTest {
 
         QueryResult result = null;
         try {
-            result = client.query(adapter, queryKind, query, anchor, relatedFacts);
+            result = client.query(queryKind, query, anchor, relatedFacts);
         } catch (Exception e) {
             fail("RESTClient.query should not throw. Threw: " + e.getClass().getName() + " - " + e.getMessage());
         }
 
-        // If orchestrator returns null due to adapter returning null responses, RESTClient should return null safely.
         assertNotNull(result);
 
         assertNotNull(result.getQueryExecutionJson());
@@ -128,26 +95,12 @@ public class RESTClientTest {
         assertEquals("llm_response", result.getQueryExecutionJson().get("stage").getAsString());
 
         assertTrue(result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").get("ok").getAsBoolean() == false);
-
-        //assertEquals("response.contract.empty",
-        //        result.getQueryExecutionJson().getAsJsonObject("llmResponseValidation").
-        //                get("code").getAsString());
-
-        // assertEquals("queryresult.contract.empty",
-        //         result.getQueryExecutionJson().
-        //                 getAsJsonObject("llmResponseValidation").get("code").getAsString());
-
-        // assertTrue(result.getQueryExecutionJson().get("rawResponse").isJsonNull());
     }
 
     @Test
-    public void driver_style_smoke_doesNotThrow_with_real_adapter_object() {
+    public void driver_style_smoke_doesNotThrow() {
 
         QueryClient client = new RESTClient();
-
-        // keep stable shape, no assumptions
-        JsonObject config = new JsonObject();
-        LlmAdapter adapter = new OpenAILlmAdapter(config);
 
         String queryKind = "validate_flight_airports";
         String query = "Validate that the selected flight has valid departure and arrival airport codes based on the airport nodes in the graph. "
@@ -158,7 +111,7 @@ public class RESTClientTest {
         List<String> relatedFacts = new ArrayList<String>();
 
         try {
-            client.query(adapter, queryKind, query, anchor, relatedFacts);
+            client.query(queryKind, query, anchor, relatedFacts);
         } catch (Exception e) {
             fail("Driver-style call should not throw. Threw: " + e.getClass().getName() + " - " + e.getMessage());
         }
@@ -169,9 +122,7 @@ public class RESTClientTest {
 
         QueryClient client = new RESTClient();
 
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
-
-        QueryResult r = client.query(adapter, (String) null);
+        QueryResult r = client.query((String) null);
 
         assertNull(r);
     }
@@ -181,9 +132,7 @@ public class RESTClientTest {
 
         QueryClient client = new RESTClient();
 
-        LlmAdapter adapter = Mockito.mock(LlmAdapter.class);
-
-        QueryResult r = client.query(adapter, "   ");
+        QueryResult r = client.query("   ");
 
         assertNull(r);
     }
@@ -192,8 +141,6 @@ public class RESTClientTest {
     public void query_sql_valid_flow_delegates_and_returns_result_shape() {
 
         QueryClient client = new RESTClient();
-
-        LlmAdapter adapter = new FakeLlmAdapter();
 
         String sql = ""
                 + "select ok, code "
@@ -205,33 +152,19 @@ public class RESTClientTest {
         QueryResult result = null;
 
         try {
-            result = client.query(adapter, sql);
+            result = client.query(sql);
         } catch (Exception e) {
             fail("SQL path should not throw. Threw: " + e.getClass().getName());
         }
 
         assertNotNull(result);
         assertNotNull(result.getQueryExecutionJson());
-
-        // assertEquals("ERROR", result.getQueryExecutionJson().get("status").getAsString());
-        // assertEquals("llm_response", result.getQueryExecutionJson().get("stage").getAsString());
-
-        // assertTrue(result.getQueryExecutionJson()
-        //         .getAsJsonObject("llmResponseValidation")
-        //         .get("ok").getAsBoolean() == false);
-
-        // assertEquals("queryresult.contract.empty",
-        //         result.getQueryExecutionJson()
-        //                 .getAsJsonObject("llmResponseValidation")
-        //                 .get("code").getAsString());
     }
 
     @Test
     public void query_sql_without_relatedFacts_still_works() {
 
         QueryClient client = new RESTClient();
-
-        LlmAdapter adapter = new FakeLlmAdapter();
 
         String sql = ""
                 + "select ok "
@@ -241,7 +174,7 @@ public class RESTClientTest {
         QueryResult result = null;
 
         try {
-            result = client.query(adapter, sql);
+            result = client.query(sql);
         } catch (Exception e) {
             fail("SQL minimal path should not throw.");
         }
@@ -274,4 +207,3 @@ public class RESTClientTest {
         graphBuilder.bind(input, null);
     }
 }
-

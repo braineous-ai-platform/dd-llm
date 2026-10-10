@@ -1,8 +1,6 @@
 package io.braineous.dd.llm.query.client;
 
-import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import com.google.gson.JsonObject;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -12,9 +10,6 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/api/v1")
 public class QueryResource {
-
-    @Inject
-    QueryAdapterResolver adapterResolver;
 
     @POST
     @Path("/query")
@@ -42,16 +37,10 @@ public class QueryResource {
                 return badRequest("fact required");
             }
 
-            LlmAdapter adapter = this.adapterResolver.resolve(body.getAdapter());
-            if (adapter == null) {
-                return badRequest("invalid adapter");
-            }
-
             QueryClient client = new RESTClient();
 
             QueryResult result =
                     client.query(
-                            adapter,
                             queryKind,
                             query,
                             fact,

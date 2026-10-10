@@ -92,31 +92,6 @@ public class QueryResourceIT {
     }
 
     @Test
-    void postQuery_invalidAdapter_returns_400_with_error_body() {
-
-        String payload =
-                "{"
-                        + "\"adapter\":\"nope\","
-                        + "\"queryKind\":\"validate_flight_airports\","
-                        + "\"query\":\"Validate airports.\","
-                        + "\"fact\":\"Airport:AUS\""
-                        + "}";
-
-        String body =
-                given()
-                        .contentType("application/json")
-                        .body(payload)
-                        .when().post("/api/v1/query")
-                        .then().statusCode(400)
-                        .extract().asString();
-
-        Console.log("QueryResourceIT.postQuery_invalidAdapter", body);
-
-        JsonObject o = JsonParser.parseString(body).getAsJsonObject();
-        assertEquals("invalid adapter", o.get("error").getAsString());
-    }
-
-    @Test
     void postQuery_missingFact_returns_400_with_error_body() {
 
         String payload =

@@ -1,12 +1,11 @@
 package io.braineous.dd.llm.transaction.services;
 
-import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.pg.model.TxGateRequest;
 import io.braineous.dd.llm.pg.model.TxStepResult;
 import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
-import io.braineous.dd.llm.query.client.QueryExecutor;
+import io.braineous.dd.llm.query.client.QueryClient;
 import io.braineous.dd.llm.query.client.QueryResult;
 import io.braineous.dd.llm.transaction.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,10 +18,8 @@ public class TransactionService {
 
     private static final String INVALID_REQUEST_REASON = "INVALID_REQUEST";
 
-    private TxQueryRequestTranslator translator;
-
     @Inject
-    private QueryExecutor queryExecutor;
+    private QueryClient queryClient;
 
     @Inject
     private PolicyGateOrchestrator policyGateOrchestrator;
@@ -31,11 +28,9 @@ public class TransactionService {
     }
 
     // UT seam
-    public TransactionService(TxQueryRequestTranslator translator,
-                              QueryExecutor queryExecutor,
+    public TransactionService(QueryClient queryClient,
                               PolicyGateOrchestrator policyGateOrchestrator) {
-        this.translator = translator;
-        this.queryExecutor = queryExecutor;
+        this.queryClient = queryClient;
         this.policyGateOrchestrator = policyGateOrchestrator;
     }
 
@@ -120,9 +115,7 @@ public class TransactionService {
 
             Console.log("tx.step.start", step.getId());
 
-            QueryRequest<?> qr = this.translator.translate(step);
-
-            QueryResult qres = this.queryExecutor.execute(qr);
+            QueryResult qres = this.queryClient.query(step.getSql());
 
             TxStepResult sr = new TxStepResult();
             sr.setId(step.getId());

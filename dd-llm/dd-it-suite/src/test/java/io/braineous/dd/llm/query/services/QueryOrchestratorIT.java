@@ -6,13 +6,11 @@ import ai.braineous.cgo.history.HistoryView;
 import ai.braineous.cgo.history.MongoHistoryStore;
 import ai.braineous.cgo.history.ScorerResult;
 import ai.braineous.rag.prompt.cgo.api.GraphContext;
-import ai.braineous.rag.prompt.cgo.api.LlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.Meta;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
 import ai.braineous.rag.prompt.cgo.api.ValidationResult;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
-import com.google.gson.JsonObject;
 import io.braineous.dd.llm.query.client.QueryOrchestrator;
 import io.braineous.dd.llm.query.client.QueryResult;
 import io.quarkus.test.junit.QuarkusTest;
@@ -40,7 +38,6 @@ public class QueryOrchestratorIT {
         String factId = "Flight:F100";
         ValidateTask task = new ValidateTask("validate flight airports", factId);
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new FakeLlmAdapter());
 
         QueryResult result = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", result.toJson());
@@ -94,50 +91,6 @@ public class QueryOrchestratorIT {
     }
 
     @Test
-    void query_error_persists_history_record_with_error_status() {
-        ai.braineous.rag.prompt.observe.Console.log("IT", "query_error_persists_history_record_with_error_status");
-
-        MongoHistoryStore store = new MongoHistoryStore();
-        store.clear();
-        ai.braineous.rag.prompt.observe.Console.log("IT", "mongo cleared");
-
-        QueryOrchestrator orch = new QueryOrchestrator();
-
-        Meta meta = new Meta("v1", "it_query_error", "error path");
-        GraphContext ctx = new GraphContext(java.util.Map.of());
-
-        ValidateTask task = new ValidateTask("validate bad flight", "Flight:F404");
-        QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new ErrorLlmAdapter());
-
-        QueryResult result = orch.execute(req);
-        ai.braineous.rag.prompt.observe.Console.log("IT", result.toJson());
-
-        org.junit.jupiter.api.Assertions.assertTrue(result.isOk());
-
-        QueryExecution<?> exec = QueryExecution.fromJson(result.getQueryExecutionJson());
-        ai.braineous.rag.prompt.observe.Console.log("IT", exec.toJson());
-
-        org.junit.jupiter.api.Assertions.assertNotNull(exec);
-        // org.junit.jupiter.api.Assertions.assertFalse(exec.isOk());
-        org.junit.jupiter.api.Assertions.assertEquals("ERROR", exec.getStatus());
-
-        HistoryView view = store.findHistory("it_query_error");
-        ai.braineous.rag.prompt.observe.Console.log("IT", view);
-
-        List<HistoryRecord> all = store.getAll();
-        ai.braineous.rag.prompt.observe.Console.log("IT", "all.size=" + all.size());
-
-        org.junit.jupiter.api.Assertions.assertEquals(1, all.size());
-
-        HistoryRecord record = all.get(0);
-        org.junit.jupiter.api.Assertions.assertEquals("it_query_error", record.getQueryKind());
-        org.junit.jupiter.api.Assertions.assertNotNull(record.getQueryExecution());
-        org.junit.jupiter.api.Assertions.assertFalse(record.getQueryExecution().isOk());
-        org.junit.jupiter.api.Assertions.assertEquals("ERROR", record.getQueryExecution().getStatus());
-    }
-
-    @Test
     void query_error_persists_history_and_ok_still_persists() {
         ai.braineous.rag.prompt.observe.Console.log("IT", "query_error_persists_history_and_ok_still_persists");
 
@@ -151,7 +104,6 @@ public class QueryOrchestratorIT {
         GraphContext ctx = new GraphContext(java.util.Map.of());
         ValidateTask taskErr = new ValidateTask("validate bad flight", "Flight:F404");
         QueryRequest reqErr = new QueryRequest(metaErr, ctx, taskErr);
-        reqErr.setAdapter(new ErrorLlmAdapter());
 
         QueryResult resErr = orch.execute(reqErr);
         ai.braineous.rag.prompt.observe.Console.log("IT", resErr.toJson());
@@ -170,7 +122,6 @@ public class QueryOrchestratorIT {
         ValidateTask taskOk = new ValidateTask("validate flight airports", "Flight:F100");
 
         QueryRequest reqOk = new QueryRequest(metaOk, ctxOk, taskOk);
-        reqOk.setAdapter(new OkLlmAdapter());
 
         QueryResult resOk = orch.execute(reqOk);
         ai.braineous.rag.prompt.observe.Console.log("IT", resOk.toJson());
@@ -220,7 +171,6 @@ public class QueryOrchestratorIT {
         Meta meta1 = new Meta("v1", "it_query_id_1", "id run 1");
         ValidateTask task1 = new ValidateTask("validate flight airports", "Flight:F101");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
-        req1.setAdapter(new OkLlmAdapter("Flight:F101"));
 
         QueryResult r1 = orch.execute(req1);
         ai.braineous.rag.prompt.observe.Console.log("IT", r1.toJson());
@@ -232,7 +182,6 @@ public class QueryOrchestratorIT {
         Meta meta2 = new Meta("v1", "it_query_id_2", "id run 2");
         ValidateTask task2 = new ValidateTask("validate flight airports", "Flight:F102");
         QueryRequest req2 = new QueryRequest(meta2, ctx, task2);
-        req2.setAdapter(new OkLlmAdapter("Flight:F102"));
 
         QueryResult r2 = orch.execute(req2);
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
@@ -262,7 +211,6 @@ public class QueryOrchestratorIT {
         Meta metaA = new Meta("v1", "it_qk_A", "qk A");
         ValidateTask taskA = new ValidateTask("validate A", "Flight:A1");
         QueryRequest reqA = new QueryRequest(metaA, ctx, taskA);
-        reqA.setAdapter(new OkLlmAdapter("Flight:A1"));
         QueryResult rA = orch.execute(reqA);
         ai.braineous.rag.prompt.observe.Console.log("IT", rA.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(rA.isOk());
@@ -270,7 +218,6 @@ public class QueryOrchestratorIT {
         Meta metaB = new Meta("v1", "it_qk_B", "qk B");
         ValidateTask taskB = new ValidateTask("validate B", "Flight:B1");
         QueryRequest reqB = new QueryRequest(metaB, ctx, taskB);
-        reqB.setAdapter(new OkLlmAdapter("Flight:B1"));
         QueryResult rB = orch.execute(reqB);
         ai.braineous.rag.prompt.observe.Console.log("IT", rB.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(rB.isOk());
@@ -318,7 +265,6 @@ public class QueryOrchestratorIT {
         ValidateTask task = new ValidateTask("validate roundtrip", "Flight:RT1");
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new OkLlmAdapter("Flight:RT1"));
 
         QueryResult res = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
@@ -407,7 +353,6 @@ public class QueryOrchestratorIT {
         Meta meta1 = new Meta("v1", qk, "dup 1");
         ValidateTask task1 = new ValidateTask("validate dup 1", "Flight:D1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
-        req1.setAdapter(new OkLlmAdapter("Flight:D1"));
 
         QueryResult r1 = orch.execute(req1);
         ai.braineous.rag.prompt.observe.Console.log("IT", r1.toJson());
@@ -416,7 +361,6 @@ public class QueryOrchestratorIT {
         Meta meta2 = new Meta("v1", qk, "dup 2");
         ValidateTask task2 = new ValidateTask("validate dup 2", "Flight:D2");
         QueryRequest req2 = new QueryRequest(meta2, ctx, task2);
-        req2.setAdapter(new OkLlmAdapter("Flight:D2"));
 
         QueryResult r2 = orch.execute(req2);
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
@@ -454,7 +398,6 @@ public class QueryOrchestratorIT {
         Meta meta1 = new Meta("v1", qk, "trim 1");
         ValidateTask task1 = new ValidateTask("validate trim 1", "Flight:T1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
-        req1.setAdapter(new OkLlmAdapter("Flight:T1"));
         QueryResult r1 = orch.execute(req1);
         ai.braineous.rag.prompt.observe.Console.log("IT", r1.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(r1.isOk());
@@ -462,7 +405,6 @@ public class QueryOrchestratorIT {
         Meta meta2 = new Meta("v1", qk, "trim 2");
         ValidateTask task2 = new ValidateTask("validate trim 2", "Flight:T2");
         QueryRequest req2 = new QueryRequest(meta2, ctx, task2);
-        req2.setAdapter(new OkLlmAdapter("Flight:T2"));
         QueryResult r2 = orch.execute(req2);
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(r2.isOk());
@@ -500,7 +442,6 @@ public class QueryOrchestratorIT {
         Meta meta1 = new Meta("v1", "it_clear_qk", "clear 1");
         ValidateTask task1 = new ValidateTask("validate clear 1", "Flight:C1");
         QueryRequest req1 = new QueryRequest(meta1, ctx, task1);
-        req1.setAdapter(new OkLlmAdapter("Flight:C1"));
         QueryResult r1 = orch.execute(req1);
         ai.braineous.rag.prompt.observe.Console.log("IT", r1.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(r1.isOk());
@@ -508,7 +449,6 @@ public class QueryOrchestratorIT {
         Meta meta2 = new Meta("v1", "it_clear_qk", "clear 2");
         ValidateTask task2 = new ValidateTask("validate clear 2", "Flight:C2");
         QueryRequest req2 = new QueryRequest(meta2, ctx, task2);
-        req2.setAdapter(new OkLlmAdapter("Flight:C2"));
         QueryResult r2 = orch.execute(req2);
         ai.braineous.rag.prompt.observe.Console.log("IT", r2.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(r2.isOk());
@@ -544,7 +484,6 @@ public class QueryOrchestratorIT {
         ValidateTask task = new ValidateTask("validate adapter null", "Flight:AN1");
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new OkLlmAdapter("Flight:AN1"));
 
         QueryResult res = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
@@ -557,7 +496,6 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertNotNull(exec);
         org.junit.jupiter.api.Assertions.assertNotNull(exec.getRequest());
 
-        org.junit.jupiter.api.Assertions.assertNull(exec.getRequest().getAdapter());
 
         // org.junit.jupiter.api.Assertions.assertTrue(exec.isOk());
         // org.junit.jupiter.api.Assertions.assertEquals("OK", exec.getStatus());
@@ -570,7 +508,6 @@ public class QueryOrchestratorIT {
         HistoryRecord r = all.get(0);
         org.junit.jupiter.api.Assertions.assertEquals("it_adapter_null", r.getQueryKind());
         org.junit.jupiter.api.Assertions.assertNotNull(r.getQueryExecution());
-        org.junit.jupiter.api.Assertions.assertNull(r.getQueryExecution().getRequest().getAdapter());
     }
 
     @Test
@@ -594,7 +531,6 @@ public class QueryOrchestratorIT {
         ValidateTask task = new ValidateTask("validate raw response", anchorId);
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new FixedRawAdapter(expectedRaw));
 
         QueryResult res = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
@@ -627,7 +563,6 @@ public class QueryOrchestratorIT {
         ValidateTask task = new ValidateTask("validate stages", "Flight:S1");
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new OkLlmAdapter("Flight:S1"));
 
         QueryResult res = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
@@ -680,7 +615,6 @@ public class QueryOrchestratorIT {
             ValidateTask task = new ValidateTask("validate loop " + i, anchorId);
 
             QueryRequest req = new QueryRequest(meta, ctx, task);
-            req.setAdapter(new OkLlmAdapter(anchorId));
 
             QueryResult res = orch.execute(req);
             ai.braineous.rag.prompt.observe.Console.log("IT", "i=" + i + " id=" + res.getId() + " ok=" + res.isOk());
@@ -725,7 +659,6 @@ public class QueryOrchestratorIT {
             ValidateTask task = new ValidateTask("validate same qk " + i, anchorId);
 
             QueryRequest req = new QueryRequest(meta, ctx, task);
-            req.setAdapter(new OkLlmAdapter(anchorId));
 
             QueryResult res = orch.execute(req);
             ai.braineous.rag.prompt.observe.Console.log("IT", "i=" + i + " id=" + res.getId() + " ok=" + res.isOk());
@@ -767,7 +700,6 @@ public class QueryOrchestratorIT {
             ValidateTask task = new ValidateTask("validate bad flight " + i, "Flight:E" + i);
 
             QueryRequest req = new QueryRequest(meta, ctx, task);
-            req.setAdapter(new ErrorLlmAdapter());
 
             QueryResult res = orch.execute(req);
             ai.braineous.rag.prompt.observe.Console.log("IT", "i=" + i + " id=" + res.getId());
@@ -822,10 +754,8 @@ public class QueryOrchestratorIT {
 
             QueryRequest req = new QueryRequest(meta, ctx, task);
             if (doOk) {
-                req.setAdapter(new OkLlmAdapter(anchorId));
                 okCount++;
             } else {
-                req.setAdapter(new ErrorLlmAdapter());
                 errorCount++;
             }
 
@@ -888,7 +818,6 @@ public class QueryOrchestratorIT {
         Meta metaNull = new Meta("v1", null, "null qk");
         ValidateTask taskNull = new ValidateTask("validate null qk", "Flight:NQK");
         QueryRequest reqNull = new QueryRequest(metaNull, ctx, taskNull);
-        reqNull.setAdapter(new OkLlmAdapter("Flight:NQK"));
 
         QueryResult resNull = orch.execute(reqNull);
         ai.braineous.rag.prompt.observe.Console.log("IT", resNull.toJson());
@@ -909,7 +838,6 @@ public class QueryOrchestratorIT {
         Meta metaBlank = new Meta("v1", "   ", "blank qk");
         ValidateTask taskBlank = new ValidateTask("validate blank qk", "Flight:BQK");
         QueryRequest reqBlank = new QueryRequest(metaBlank, ctx, taskBlank);
-        reqBlank.setAdapter(new OkLlmAdapter("Flight:BQK"));
 
         QueryResult resBlank = orch.execute(reqBlank);
         ai.braineous.rag.prompt.observe.Console.log("IT", resBlank.toJson());
@@ -942,20 +870,6 @@ public class QueryOrchestratorIT {
         org.junit.jupiter.api.Assertions.assertEquals(0, hits);
     }
 
-    private static class FixedRawAdapter extends LlmAdapter {
-
-        private final String raw;
-
-        private FixedRawAdapter(String raw) {
-            this.raw = raw;
-        }
-
-        @Override
-        public String invokeLlm(QueryRequest request, JsonObject prompt) {
-            return raw;
-        }
-    }
-
     private void runOk(QueryOrchestrator orch, GraphContext ctx, String queryKind, String anchorId) {
         ai.braineous.rag.prompt.observe.Console.log("IT", "runOk queryKind=" + queryKind + " anchorId=" + anchorId);
 
@@ -963,46 +877,10 @@ public class QueryOrchestratorIT {
         ValidateTask task = new ValidateTask("validate " + queryKind, anchorId);
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
-        req.setAdapter(new OkLlmAdapter(anchorId));
 
         QueryResult res = orch.execute(req);
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
 
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
-    }
-
-    private static class FakeLlmAdapter extends LlmAdapter {
-
-        @Override
-        public String invokeLlm(QueryRequest request, JsonObject prompt) {
-            return "{\"result\":{\"ok\":\"true\",\"code\":\"response.contract.ok\",\"message\":\"ok\",\"stage\":\"llm_response_validation\",\"anchorId\":\"Flight:F100\",\"metadata\":{}}}";
-        }
-    }
-
-    private static class ErrorLlmAdapter extends LlmAdapter {
-        @Override
-        public String invokeLlm(QueryRequest request, JsonObject prompt) {
-            return "{\"garbage\":true}";
-        }
-    }
-
-    private static class OkLlmAdapter extends LlmAdapter {
-
-        private final String anchorId;
-
-        private OkLlmAdapter() {
-            this.anchorId = "Flight:F100";
-        }
-
-        private OkLlmAdapter(String anchorId) {
-            this.anchorId = anchorId;
-        }
-
-        @Override
-        public String invokeLlm(QueryRequest request, JsonObject prompt) {
-            return "{\"result\":{\"ok\":\"true\",\"code\":\"response.contract.ok\",\"message\":\"ok\",\"stage\":\"llm_response_validation\",\"anchorId\":\""
-                    + anchorId
-                    + "\",\"metadata\":{}}}";
-        }
     }
 }

@@ -8,10 +8,12 @@ import ai.braineous.rag.prompt.observe.Console;
 import ai.braineous.rag.prompt.cgo.querygen.DeclarativeQueryCompiler;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class RESTClient implements QueryClient {
     public static final String VERSION = "v1";
 
@@ -19,11 +21,11 @@ public class RESTClient implements QueryClient {
     }
 
     @Override
-    public QueryResult query(LlmAdapter adapter, String sql) {
-        if (adapter == null) {
-            return null;
-        }
+    public QueryResult query(String sql) {
+        return querySql(sql);
+    }
 
+    private QueryResult querySql(String sql) {
         if (sql == null || sql.trim().isEmpty()) {
             return null;
         }
@@ -51,20 +53,18 @@ public class RESTClient implements QueryClient {
         List<String> requestedFields = readStringArray(taskJson, "select");
         List<Control> controls = readControlsFromTask(taskJson);
 
-        return query(adapter, queryKind, query, factId, relatedFacts, requestedFields, controls);
+        return query(queryKind, query, factId, relatedFacts, requestedFields, controls);
     }
 
     @Override
-    public QueryResult query(LlmAdapter llmAdapter,
-                             String queryKind,
+    public QueryResult query(String queryKind,
                              String query,
                              String fact,
                              List<String> relatedFacts) {
-        return query(llmAdapter, queryKind, query, fact, relatedFacts, null, null);
+        return query(queryKind, query, fact, relatedFacts, null, null);
     }
 
-    private QueryResult query(LlmAdapter llmAdapter,
-                              String queryKind,
+    private QueryResult query(String queryKind,
                               String query,
                               String fact,
                               List<String> relatedFacts,
@@ -78,9 +78,6 @@ public class RESTClient implements QueryClient {
             return null;
         }
         if (fact == null || fact.trim().isEmpty()) {
-            return null;
-        }
-        if (llmAdapter == null) {
             return null;
         }
 
@@ -142,7 +139,6 @@ public class RESTClient implements QueryClient {
         Console.log("__request_debug____", request.toJson().toString());
 
         QueryOrchestrator orch = new QueryOrchestrator();
-        request.setAdapter(llmAdapter);
 
         QueryResult result = orch.execute(request);
         if (result == null) {

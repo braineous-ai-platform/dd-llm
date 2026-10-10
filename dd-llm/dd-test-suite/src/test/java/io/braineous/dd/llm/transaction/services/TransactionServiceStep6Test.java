@@ -1,16 +1,17 @@
 package io.braineous.dd.llm.transaction.services;
 
-import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.pg.model.TxGateRequest;
 import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
-import io.braineous.dd.llm.query.client.QueryExecutor;
+import io.braineous.dd.llm.query.client.QueryClient;
 import io.braineous.dd.llm.query.client.QueryResult;
 import io.braineous.dd.llm.transaction.model.TxExecutionRequest;
 import io.braineous.dd.llm.transaction.model.TxExecutionResult;
 import io.braineous.dd.llm.transaction.model.TxStepRequest;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,16 +20,14 @@ public class TransactionServiceStep6Test {
     @Test
     public void execute_shouldPassConsistencyChecks_whenRequestAndResultStayInSync() {
 
-        TxQueryRequestTranslator translator = new TxQueryRequestTranslator() {
+        QueryClient queryClient = new QueryClient() {
             @Override
-            public QueryRequest<?> translate(TxStepRequest step) {
+            public QueryResult query(String queryKind, String query, String fact, List<String> relatedFacts) {
                 return null;
             }
-        };
 
-        QueryExecutor queryExecutor = new QueryExecutor() {
             @Override
-            public QueryResult execute(QueryRequest request) {
+            public QueryResult query(String sql) {
                 QueryResult ok = new QueryResult();
                 ok.setOk(true);
                 return ok;
@@ -42,7 +41,7 @@ public class TransactionServiceStep6Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
+        TransactionService svc = new TransactionService(queryClient, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("tx-step6-ok");
@@ -86,16 +85,14 @@ public class TransactionServiceStep6Test {
     @Test
     public void execute_shouldFailConsistencyCheck_whenStagedStepIdsDriftFromRequestOrder() {
 
-        TxQueryRequestTranslator translator = new TxQueryRequestTranslator() {
+        QueryClient queryClient = new QueryClient() {
             @Override
-            public QueryRequest<?> translate(TxStepRequest step) {
+            public QueryResult query(String queryKind, String query, String fact, List<String> relatedFacts) {
                 return null;
             }
-        };
 
-        QueryExecutor queryExecutor = new QueryExecutor() {
             @Override
-            public QueryResult execute(QueryRequest request) {
+            public QueryResult query(String sql) {
                 QueryResult ok = new QueryResult();
                 ok.setOk(true);
                 return ok;
@@ -114,7 +111,7 @@ public class TransactionServiceStep6Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
+        TransactionService svc = new TransactionService(queryClient, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("tx-step6-broken");

@@ -1,7 +1,6 @@
 package io.braineous.dd.llm.query.client;
 
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
-import ai.braineous.rag.prompt.cgo.prompt.LlmClient;
 import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
@@ -26,12 +25,6 @@ public class QueryOrchestrator implements QueryExecutor{
     public QueryOrchestrator() {
         this(new CgoQueryPipeline(new PromptBuilder()));
     }
-
-    QueryOrchestrator(LlmClient llmClient) {
-        this(new CgoQueryPipeline(new PromptBuilder(), llmClient));
-    }
-
-
 
     // UT seam (boring + legal)
     public QueryOrchestrator(CgoQueryPipeline pipeline) {

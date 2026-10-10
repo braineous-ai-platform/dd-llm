@@ -1,6 +1,5 @@
 package ai.braineous.agentic.fno.reasoning.query;
 
-import ai.braineous.cgo.llm.OpenAILlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.*;
 
 import com.google.gson.JsonObject;
@@ -110,10 +109,6 @@ public class FNOQueryExecution {
             throw new IllegalArgumentException("task.factId must be non-empty");
         }
 
-        // adapter stays demo-stable for now
-        JsonObject config = new JsonObject();
-        LlmAdapter adapter = new OpenAILlmAdapter(config);
-
         QueryClient queryClient = new RESTClient();
         String queryKind = meta.getQueryKind();
         String query = task.getDescription();
@@ -128,7 +123,6 @@ public class FNOQueryExecution {
 
         // ✅ one line: delegate to client
         io.braineous.dd.llm.query.client.QueryResult result = queryClient.query(
-                adapter,
                 queryKind,
                 query,
                 factId,

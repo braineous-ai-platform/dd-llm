@@ -1,6 +1,5 @@
 package io.braineous.dd.llm.query.client;
 
-import ai.braineous.cgo.llm.OpenAILlmAdapter;
 import ai.braineous.rag.prompt.cgo.api.Fact;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidationResult;
@@ -66,7 +65,7 @@ public class V1ComplianceIT {
                 + "control intent = 'decide_payment_capture'";
 
         QueryClient client = new RESTClient();
-        QueryResult result = client.query(new OpenAILlmAdapter(), sql);
+        QueryResult result = client.query(sql);
 
         Console.log("v1.compliance.sql", sql);
         Console.log("v1.compliance.queryResult.ok", result == null ? "null" : String.valueOf(result.isOk()));
@@ -169,7 +168,7 @@ public class V1ComplianceIT {
 
             try {
                 QueryClient client = new RESTClient();
-                QueryResult result = client.query(new OpenAILlmAdapter(), sql);
+                QueryResult result = client.query(sql);
 
                 Console.log("pay.drift.queryResult.ok", result == null ? "null" : String.valueOf(result.isOk()));
                 Console.log("pay.drift.queryResult.why", result == null || result.getWhy() == null ? "null" : result.getWhy().toString());

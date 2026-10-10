@@ -1,12 +1,11 @@
 package io.braineous.dd.llm.transaction.services;
 
-import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.core.model.Why;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.pg.model.TxGateRequest;
 import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
-import io.braineous.dd.llm.query.client.QueryExecutor;
+import io.braineous.dd.llm.query.client.QueryClient;
 import io.braineous.dd.llm.query.client.QueryResult;
 import io.braineous.dd.llm.transaction.model.TxExecutionRequest;
 import io.braineous.dd.llm.transaction.model.TxExecutionResult;
@@ -23,20 +22,18 @@ public class TransactionServiceStep3Step4Test {
     @Test
     public void execute_shouldBuildGateRequestAndAttachApprovedGateResult_whenAllStepsOk() {
 
-        final List<String> translated = new ArrayList<String>();
+        final List<String> queried = new ArrayList<String>();
         final List<TxGateRequest> evaluated = new ArrayList<TxGateRequest>();
 
-        TxQueryRequestTranslator translator = new TxQueryRequestTranslator() {
+        QueryClient queryClient = new QueryClient() {
             @Override
-            public QueryRequest<?> translate(TxStepRequest step) {
-                translated.add(step.getId());
+            public QueryResult query(String queryKind, String query, String fact, List<String> relatedFacts) {
                 return null;
             }
-        };
 
-        QueryExecutor queryExecutor = new QueryExecutor() {
             @Override
-            public QueryResult execute(QueryRequest request) {
+            public QueryResult query(String sql) {
+                queried.add(sql);
                 QueryResult ok = new QueryResult();
                 ok.setOk(true);
                 return ok;
@@ -51,7 +48,7 @@ public class TransactionServiceStep3Step4Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
+        TransactionService svc = new TransactionService(queryClient, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("tx-desc");
@@ -81,9 +78,9 @@ public class TransactionServiceStep3Step4Test {
         assertTrue(out.getGateResult().isOk());
         assertTrue(out.isApproved());
 
-        assertEquals(2, translated.size());
-        assertEquals("s1", translated.get(0));
-        assertEquals("s2", translated.get(1));
+        assertEquals(2, queried.size());
+        assertEquals("sql1", queried.get(0));
+        assertEquals("sql2", queried.get(1));
 
         assertEquals(1, evaluated.size());
 
@@ -109,16 +106,14 @@ public class TransactionServiceStep3Step4Test {
         final List<TxGateRequest> evaluated = new ArrayList<TxGateRequest>();
         final List<Integer> callNum = new ArrayList<Integer>();
 
-        TxQueryRequestTranslator translator = new TxQueryRequestTranslator() {
+        QueryClient queryClient = new QueryClient() {
             @Override
-            public QueryRequest<?> translate(TxStepRequest step) {
+            public QueryResult query(String queryKind, String query, String fact, List<String> relatedFacts) {
                 return null;
             }
-        };
 
-        QueryExecutor queryExecutor = new QueryExecutor() {
             @Override
-            public QueryResult execute(QueryRequest request) {
+            public QueryResult query(String sql) {
                 callNum.add(Integer.valueOf(callNum.size() + 1));
 
                 if (callNum.size() == 1) {
@@ -139,7 +134,7 @@ public class TransactionServiceStep3Step4Test {
             }
         };
 
-        TransactionService svc = new TransactionService(translator, queryExecutor, policyGateOrchestrator);
+        TransactionService svc = new TransactionService(queryClient, policyGateOrchestrator);
 
         TxExecutionRequest req = new TxExecutionRequest();
         req.setDescription("tx-fail");
