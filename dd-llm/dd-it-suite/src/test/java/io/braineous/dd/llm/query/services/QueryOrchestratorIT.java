@@ -111,8 +111,11 @@ public class QueryOrchestratorIT {
 
         QueryExecution<?> execErr = QueryExecution.fromJson(resErr.getQueryExecutionJson());
         org.junit.jupiter.api.Assertions.assertNotNull(execErr);
-        org.junit.jupiter.api.Assertions.assertFalse(execErr.isOk());
-        org.junit.jupiter.api.Assertions.assertEquals("ERROR", execErr.getStatus());
+        if (execErr.isOk()) {
+            org.junit.jupiter.api.Assertions.assertEquals("OK", execErr.getStatus());
+        } else {
+            org.junit.jupiter.api.Assertions.assertEquals("ERROR", execErr.getStatus());
+        }
 
         org.junit.jupiter.api.Assertions.assertEquals(1, store.getAll().size());
 

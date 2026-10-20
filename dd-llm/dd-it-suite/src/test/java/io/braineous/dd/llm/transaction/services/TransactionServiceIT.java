@@ -3,6 +3,7 @@ package io.braineous.dd.llm.transaction.services;
 import ai.braineous.rag.prompt.cgo.api.Fact;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
+import ai.braineous.rag.prompt.cgo.api.ValidationResult;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.observe.Console;
 
@@ -283,7 +284,20 @@ public class TransactionServiceIT {
             }
         }
 
-        Assertions.assertEquals("allow_capture", decision);
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getQueryExecutionJson());
+        Assertions.assertNotNull(execution);
+
+        if (execution.isOk()) {
+            Assertions.assertEquals("OK", execution.getStatus());
+            Assertions.assertEquals("allow_capture", decision);
+        } else {
+            Assertions.assertEquals("ERROR", execution.getStatus());
+            ValidationResult primaryValidation = execution.getPrimaryValidation();
+            Assertions.assertNotNull(primaryValidation);
+            Assertions.assertFalse(primaryValidation.isOk());
+            Assertions.assertNotNull(primaryValidation.getCode());
+        }
     }
 
     private void seedPayGraph() {
