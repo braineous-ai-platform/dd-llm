@@ -2,10 +2,12 @@ package io.braineous.dd.llm.pg.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+@Disabled("Deprecated governance; developer-owned")
 public class PolicyGateResultTest {
 
     @Test

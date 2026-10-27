@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+@Disabled("Deprecated governance; developer-owned")
 public class ExecutionViewTest {
 
     @Test

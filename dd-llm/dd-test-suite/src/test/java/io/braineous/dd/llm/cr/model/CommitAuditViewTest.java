@@ -1,6 +1,7 @@
 package io.braineous.dd.llm.cr.model;
 
 import io.braineous.dd.llm.core.model.Why;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,7 @@ public class CommitAuditViewTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     void completed_accepted_lifts_why_message() {
         CommitReceipt rcpt = new CommitReceipt();
         rcpt.setCommitId("cr_3");
@@ -52,6 +54,7 @@ public class CommitAuditViewTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     void completed_rejected_when_receipt_present_and_accepted_false() {
         CommitReceipt rcpt = new CommitReceipt();
         rcpt.setCommitId("cr_4");

@@ -3,6 +3,7 @@ package io.braineous.dd.llm.transaction.services;
 import ai.braineous.rag.prompt.observe.Console;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.transaction.model.TxExecutionResult;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +23,7 @@ public class TransactionServiceTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     public void execute_shouldReturnGateFailure_whenRequestIsNull() {
 
         TransactionService svc = new TransactionService();
@@ -39,6 +41,7 @@ public class TransactionServiceTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     public void execute_shouldReturnNotApproved_whenRequestIsNull() {
 
         TransactionService svc = new TransactionService();

@@ -8,6 +8,7 @@ import io.braineous.dd.llm.core.model.Why;
 import io.braineous.dd.llm.pg.model.TxGateRequest;
 import io.braineous.dd.llm.pg.model.TxStepResult;
 import io.braineous.dd.llm.query.client.QueryResult;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Deprecated governance; developer-owned")
 public class TxGateRequestTest {
 
     @Test

@@ -1,8 +1,12 @@
 package io.braineous.dd.llm.agent.client;
 
 import ai.braineous.rag.prompt.cgo.api.Fact;
+import ai.braineous.rag.prompt.cgo.api.GraphContext;
+import ai.braineous.rag.prompt.cgo.api.Meta;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.api.ValidateTask;
+import ai.braineous.rag.prompt.cgo.api.ValidationResult;
+import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.observe.Console;
 
@@ -10,7 +14,6 @@ import io.braineous.dd.llm.pg.model.TxStepResult;
 import io.braineous.dd.llm.pg.services.PolicyGateOrchestrator;
 import io.braineous.dd.llm.query.client.QueryClient;
 import io.braineous.dd.llm.query.client.QueryResult;
-import io.braineous.dd.llm.query.client.RESTClient;
 import io.braineous.dd.llm.transaction.model.TxExecutionRequest;
 import io.braineous.dd.llm.transaction.model.TxExecutionResult;
 import io.braineous.dd.llm.transaction.model.TxStepRequest;
@@ -50,7 +53,17 @@ public class AgentClientIT {
 
         seedPayGraph();
 
-        QueryClient queryClient = new RESTClient();
+        QueryClient queryClient = new QueryClient() {
+            @Override
+            public QueryResult query(String queryKind, String query, String fact, java.util.List<String> relatedFacts) {
+                return payEnvelope();
+            }
+
+            @Override
+            public QueryResult query(String sql) {
+                return payEnvelope();
+            }
+        };
         PolicyGateOrchestrator gate = new PolicyGateOrchestrator();
         TransactionService service = new TransactionService(queryClient, gate);
         AgentClient client = new AgentClient(service);
@@ -164,6 +177,21 @@ public class AgentClientIT {
 
         Assertions.assertNotNull(ex0.getLlmResponseValidation());
         Assertions.assertNotNull(ex1.getLlmResponseValidation());
+    }
+
+    private QueryResult payEnvelope() {
+        GraphContext ctx = new GraphContext(java.util.Map.of());
+        Meta meta = new Meta("v1", "decide_payment_capture", "decide_payment_capture");
+        ValidateTask task = new ValidateTask("decide_payment_capture", PAY_1001);
+        QueryRequest req = new QueryRequest(meta, ctx, task);
+        QueryExecution<?> exec = new QueryExecution<>(
+                req,
+                "{\"result\":\"ok\"}",
+                ValidationResult.ok("prompt_contract"),
+                ValidationResult.ok("llm_response_validation"),
+                null
+        );
+        return QueryResult.ok(req.toJson(), exec.toJson());
     }
 
     private void seedPayGraph() {

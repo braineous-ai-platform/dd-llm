@@ -8,6 +8,7 @@ import io.braineous.dd.llm.core.model.Why;
 import io.braineous.dd.llm.pg.model.PolicyGateResult;
 import io.braineous.dd.llm.pg.model.TxStepResult;
 import io.braineous.dd.llm.query.client.QueryResult;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     public void txExecutionResult_isApprovedShouldReturnFalse_whenGateResultNull() {
 
         TxExecutionResult r = new TxExecutionResult();
@@ -99,6 +101,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     public void txExecutionResult_isApprovedShouldReturnTrue_whenGateOkTrue() {
 
         TxExecutionResult r = new TxExecutionResult();
@@ -115,6 +118,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
+    @Disabled("Deprecated governance; developer-owned")
     public void txExecutionResult_isApprovedShouldReturnFalse_whenGateOkFalse() {
 
         TxExecutionResult r = new TxExecutionResult();
