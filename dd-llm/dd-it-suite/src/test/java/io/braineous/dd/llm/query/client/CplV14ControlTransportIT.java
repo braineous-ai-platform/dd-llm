@@ -88,6 +88,26 @@ public class CplV14ControlTransportIT {
         Assertions.assertFalse(controls.has("else deny"));
     }
 
+    @Test
+    public void test_2() {
+        String sql = ""
+                + "select result "
+                + "from llm "
+                + "where factId = '" + PAY_1001 + "' "
+                + "control "
+                + "unknown_flag = 'true'";
+
+        QueryClient client = new RESTClient();
+
+        try {
+            client.query(sql);
+            Assertions.fail("expected exception");
+        } catch (IllegalArgumentException e) {
+            Console.log("c2.transport.unknown_exception", e.getMessage());
+            Assertions.assertEquals("unknown control key: unknown_flag", e.getMessage());
+        }
+    }
+
     private Fact payFact(String id, String text) {
         return new Fact(id, text, new HashSet<String>(), "atomic");
     }

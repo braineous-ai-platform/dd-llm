@@ -155,7 +155,12 @@ public class RESTClientTest {
                 + "from llm "
                 + "where factId = 'Flight:AUS-DFW:001' "
                 + "and relatedFactIds = 'Airport:AUS,Airport:DFW' "
-                + "control decision_mode = 'validate_flight_airports'";
+                + "control "
+                + "method = 'validate_flight_airports', "
+                + "parameters = 'from, to', "
+                + "expression = 'from != to', "
+                + "spec = 'if expression is true then allow, else deny', "
+                + "result = 'decision'";
 
         QueryResult result = null;
 
