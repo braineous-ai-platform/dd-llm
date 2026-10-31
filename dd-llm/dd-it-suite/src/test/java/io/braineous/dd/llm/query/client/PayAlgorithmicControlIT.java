@@ -50,8 +50,7 @@ public class PayAlgorithmicControlIT {
         Console.log("v1.observation.fact.POL-5001", POL_5001_TEXT);
 
         String sql = ""
-                + "select decision, reason, code "
-                + "from llm "
+                + "select from llm "
                 + "where factId = '" + PAY_1001 + "' "
                 + "and relatedFactIds = '"
                 + CUST_2001 + ","
@@ -59,10 +58,10 @@ public class PayAlgorithmicControlIT {
                 + RISK_4001 + ","
                 + POL_5001 + "' "
                 + "control "
-                + "method = 'decide_payment_capture', "
-                + "parameters = 'CustomerAccount.status, PaymentMethod.type, RiskProfile.level, MerchantPolicy.capture', "
-                + "expression = 'CustomerAccount.status is equal to ACTIVE and PaymentMethod.type is equal to CARD and RiskProfile.level is equal to LOW and MerchantPolicy.capture is equal to AUTO', "
-                + "spec = 'When the expression is true, the result is allow_capture. Otherwise, the result is deny_capture.', "
+                + "method = 'decide_payment_capture' "
+                + "parameters = 'CustomerAccount.status, PaymentMethod.type, RiskProfile.level, MerchantPolicy.capture' "
+                + "expression = 'CustomerAccount.status is equal to ACTIVE and PaymentMethod.type is equal to CARD and RiskProfile.level is equal to LOW and MerchantPolicy.capture is equal to AUTO' "
+                + "spec = 'When the expression is true, the result is allow_capture. Otherwise, the result is deny_capture.' "
                 + "result = ''";
 
         QueryClient client = new RESTClient();

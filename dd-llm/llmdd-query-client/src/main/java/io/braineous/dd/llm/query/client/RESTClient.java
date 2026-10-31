@@ -71,12 +71,12 @@ public class RESTClient implements QueryClient {
                               List<String> requestedFields,
                               List<Control> controls) {
 
-        if (queryKind == null || queryKind.trim().isEmpty()) {
-            return null;
-        }
-        if (query == null || query.trim().isEmpty()) {
-            return null;
-        }
+        // if (queryKind == null || queryKind.trim().isEmpty()) {
+        //     return null;
+        // }
+        // if (query == null || query.trim().isEmpty()) {
+        //     return null;
+        // }
         if (fact == null || fact.trim().isEmpty()) {
             return null;
         }

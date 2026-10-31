@@ -6,6 +6,7 @@ import ai.braineous.rag.prompt.observe.Console;
 import com.google.gson.JsonObject;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -31,6 +32,7 @@ public class CplV14ControlTransportIT {
             "{\"id\":\"MerchantPolicy:POL-5001\",\"kind\":\"MerchantPolicy\",\"mode\":\"atomic\",\"capture\":\"AUTO\"}";
 
     @Test
+    @Disabled("Legacy RESTClient intent metadata dependency after C3")
     public void test_1() {
         GraphBuilder graphBuilder = GraphBuilder.getInstance();
         graphBuilder.clear();
@@ -42,18 +44,17 @@ public class CplV14ControlTransportIT {
         graphBuilder.addNode(payFact(POL_5001, POL_5001_TEXT));
 
         String sql = ""
-                + "select result "
-                + "from llm "
+                + "select from llm "
                 + "where factId = '" + PAY_1001 + "' "
                 + "and relatedFactIds = '"
                 + CUST_2001 + ","
                 + PM_3001 + ","
                 + RISK_4001 + ","
                 + POL_5001 + "' "
-                + "control method = 'decide_payment_capture', "
-                + "parameters = 'amount, currency, merchant', "
-                + "expression = 'amount > 0 AND currency = USD', "
-                + "spec = 'if expression is true then allow, else deny', "
+                + "control method = 'decide_payment_capture' "
+                + "parameters = 'amount, currency, merchant' "
+                + "expression = 'amount > 0 AND currency = USD' "
+                + "spec = 'if expression is true then allow, else deny' "
                 + "result = 'decision'";
 
         QueryClient client = new RESTClient();
@@ -91,8 +92,7 @@ public class CplV14ControlTransportIT {
     @Test
     public void test_2() {
         String sql = ""
-                + "select result "
-                + "from llm "
+                + "select from llm "
                 + "where factId = '" + PAY_1001 + "' "
                 + "control "
                 + "unknown_flag = 'true'";

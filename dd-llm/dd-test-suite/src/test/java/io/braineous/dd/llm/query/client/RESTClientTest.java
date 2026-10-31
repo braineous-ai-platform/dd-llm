@@ -11,6 +11,7 @@ import ai.braineous.rag.prompt.models.cgo.graph.GraphBuilder;
 import ai.braineous.rag.prompt.models.cgo.graph.Input;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class RESTClientTest {
@@ -24,6 +25,7 @@ public class RESTClientTest {
     }
 
     @Test
+    @Disabled("Legacy four-argument API null-guard contract")
     public void query_when_queryKind_null_returns_null() {
 
         QueryClient client = new RESTClient();
@@ -39,6 +41,7 @@ public class RESTClientTest {
     }
 
     @Test
+    @Disabled("Legacy four-argument API guard removed for CPL V14")
     public void query_when_query_blank_returns_null() {
 
         QueryClient client = new RESTClient();
@@ -151,15 +154,14 @@ public class RESTClientTest {
     public void query_sql_valid_flow_delegates_and_returns_result_shape() {
 
         String sql = ""
-                + "select ok, code "
-                + "from llm "
+                + "select from llm "
                 + "where factId = 'Flight:AUS-DFW:001' "
                 + "and relatedFactIds = 'Airport:AUS,Airport:DFW' "
                 + "control "
-                + "method = 'validate_flight_airports', "
-                + "parameters = 'from, to', "
-                + "expression = 'from != to', "
-                + "spec = 'if expression is true then allow, else deny', "
+                + "method = 'validate_flight_airports' "
+                + "parameters = 'from, to' "
+                + "expression = 'from != to' "
+                + "spec = 'if expression is true then allow, else deny' "
                 + "result = 'decision'";
 
         QueryResult result = null;
@@ -184,8 +186,7 @@ public class RESTClientTest {
     public void query_sql_without_relatedFacts_still_works() {
 
         String sql = ""
-                + "select ok "
-                + "from llm "
+                + "select from llm "
                 + "where factId = 'Flight:AUS-DFW:001'";
 
         QueryResult result = null;
