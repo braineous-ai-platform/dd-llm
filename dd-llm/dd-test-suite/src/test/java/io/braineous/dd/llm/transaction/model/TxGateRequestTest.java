@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Deprecated governance; developer-owned")
+@Disabled("PolicyGate is retired")
 public class TxGateRequestTest {
 
     @Test

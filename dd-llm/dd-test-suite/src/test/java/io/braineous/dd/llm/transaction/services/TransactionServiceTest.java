@@ -23,7 +23,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     public void execute_shouldReturnGateFailure_whenRequestIsNull() {
 
         TransactionService svc = new TransactionService();
@@ -41,7 +41,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     public void execute_shouldReturnNotApproved_whenRequestIsNull() {
 
         TransactionService svc = new TransactionService();

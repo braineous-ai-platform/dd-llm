@@ -88,7 +88,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     public void txExecutionResult_isApprovedShouldReturnFalse_whenGateResultNull() {
 
         TxExecutionResult r = new TxExecutionResult();
@@ -101,7 +101,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     public void txExecutionResult_isApprovedShouldReturnTrue_whenGateOkTrue() {
 
         TxExecutionResult r = new TxExecutionResult();
@@ -118,7 +118,7 @@ public class TxExecutionResultTest {
     }
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     public void txExecutionResult_isApprovedShouldReturnFalse_whenGateOkFalse() {
 
         TxExecutionResult r = new TxExecutionResult();

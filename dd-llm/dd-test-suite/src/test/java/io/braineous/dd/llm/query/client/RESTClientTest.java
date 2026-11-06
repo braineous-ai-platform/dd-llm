@@ -158,7 +158,6 @@ public class RESTClientTest {
                 + "where factId = 'Flight:AUS-DFW:001' "
                 + "and relatedFactIds = 'Airport:AUS,Airport:DFW' "
                 + "control "
-                + "method = 'validate_flight_airports' "
                 + "parameters = 'from, to' "
                 + "expression = 'from != to' "
                 + "spec = 'if expression is true then allow, else deny' "

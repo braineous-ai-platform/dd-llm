@@ -53,7 +53,7 @@ public class TransactionServiceCdiIT {
     TransactionService transactionService;
 
     @Test
-    @Disabled("Deprecated governance; developer-owned")
+    @Disabled("PolicyGate is retired")
     void cdi_shouldWireQueryOrchestrator_andPreserveInvalidRequestGate() {
 
         Console.log("IT", "cdi_shouldWireQueryOrchestrator_andPreserveInvalidRequestGate");

@@ -58,7 +58,6 @@ public class PayAlgorithmicControlIT {
                 + RISK_4001 + ","
                 + POL_5001 + "' "
                 + "control "
-                + "method = 'decide_payment_capture' "
                 + "parameters = 'CustomerAccount.status, PaymentMethod.type, RiskProfile.level, MerchantPolicy.capture' "
                 + "expression = 'CustomerAccount.status is equal to ACTIVE and PaymentMethod.type is equal to CARD and RiskProfile.level is equal to LOW and MerchantPolicy.capture is equal to AUTO' "
                 + "spec = 'When the expression is true, the result is allow_capture. Otherwise, the result is deny_capture.' "

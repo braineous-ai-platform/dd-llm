@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-@Disabled("Deprecated governance; developer-owned")
+@Disabled("PolicyGate is retired")
 public class PolicyGateResultTest {
 
     @Test
