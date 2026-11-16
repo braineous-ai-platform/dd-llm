@@ -53,11 +53,11 @@ public class TransactionServiceCognitiveFailFastTest {
 
         when(execSuccess.toJson()).thenReturn(successExecJson);
         when(execSuccess.isOk()).thenReturn(true);
-        when(execSuccess.getRawResponse()).thenReturn("{\"result\":\"success\"}");
+        when(execSuccess.getRawResponse()).thenReturn("success");
 
         when(execFail.toJson()).thenReturn(failExecJson);
         when(execFail.isOk()).thenReturn(true);
-        when(execFail.getRawResponse()).thenReturn("{\"result\":\"fail\"}");
+        when(execFail.getRawResponse()).thenReturn("fail");
 
         when(pipeline.execute(request)).thenReturn(execSuccess, execFail);
 

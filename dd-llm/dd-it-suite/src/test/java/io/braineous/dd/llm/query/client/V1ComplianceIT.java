@@ -141,40 +141,9 @@ public class V1ComplianceIT {
 
             String rawResponse = execution.getRawResponse();
             if (rawResponse == null) {
-                Console.log("v1.observation.result.decision", "null");
-                Console.log("v1.observation.result.reason", "null");
-                Console.log("v1.observation.result.code", "null");
+                Console.log("v1.observation.result", "null");
             } else {
-                try {
-                    JsonElement parsed = JsonParser.parseString(rawResponse.trim());
-                    if (parsed.isJsonObject()) {
-                        JsonObject root = parsed.getAsJsonObject();
-                        if (root.has("result") && root.get("result").isJsonObject()) {
-                            JsonObject resultObject = root.getAsJsonObject("result");
-                            if (resultObject.has("decision") && !resultObject.get("decision").isJsonNull()) {
-                                Console.log("v1.observation.result.decision", resultObject.get("decision").getAsString());
-                            } else {
-                                Console.log("v1.observation.result.decision", "missing");
-                            }
-                            if (resultObject.has("reason") && !resultObject.get("reason").isJsonNull()) {
-                                Console.log("v1.observation.result.reason", resultObject.get("reason").getAsString());
-                            } else {
-                                Console.log("v1.observation.result.reason", "missing");
-                            }
-                            if (resultObject.has("code") && !resultObject.get("code").isJsonNull()) {
-                                Console.log("v1.observation.result.code", resultObject.get("code").getAsString());
-                            } else {
-                                Console.log("v1.observation.result.code", "missing");
-                            }
-                        } else {
-                            Console.log("v1.observation.result", "missing");
-                        }
-                    } else {
-                        Console.log("v1.observation.result", "rawResponse not object");
-                    }
-                } catch (RuntimeException e) {
-                    Console.log("v1.observation.result.parse", e.getClass().getName() + ": " + e.getMessage());
-                }
+                Console.log("v1.observation.result", rawResponse.trim());
             }
         }
     }
@@ -241,14 +210,8 @@ public class V1ComplianceIT {
                     result,
                     execution);
 
-            JsonElement parsed =
-                    JsonParser.parseString(rawResponse);
-
-            JsonObject root =
-                    parsed.getAsJsonObject();
-
             String resultValue =
-                    root.get("result").getAsString();
+                    rawResponse;
 
             boolean accepted = false;
             if ("success".equals(resultValue)) {

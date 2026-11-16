@@ -4,9 +4,7 @@ import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
 import ai.braineous.rag.prompt.cgo.query.QueryRequest;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import ai.braineous.rag.prompt.cgo.querygen.services.QueryResultValidator;
 import io.braineous.dd.llm.core.model.Why;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -72,24 +70,8 @@ public class QueryOrchestrator implements QueryExecutor{
             );
         }
 
-        JsonElement parsed;
-        try {
-            parsed = JsonParser.parseString(queryExecution.getRawResponse());
-        } catch (JsonSyntaxException e) {
-            return QueryResult.fail(
-                    request.toJson(),
-                    queryExecution.toJson(),
-                    new Why(WHY_CODE_RESULT_NOT_SUCCESS, WHY_MSG_RESULT_NOT_SUCCESS)
-            );
-        }
-
-        if (parsed == null
-                || !parsed.isJsonObject()
-                || !parsed.getAsJsonObject().has("result")
-                || parsed.getAsJsonObject().get("result").isJsonNull()
-                || !parsed.getAsJsonObject().get("result").isJsonPrimitive()
-                || !parsed.getAsJsonObject().get("result").getAsJsonPrimitive().isString()
-                || !"success".equals(parsed.getAsJsonObject().get("result").getAsString())) {
+        String resultValue = queryExecution.getRawResponse().trim();
+        if (!QueryResultValidator.SUCCESS.equals(resultValue)) {
             return QueryResult.fail(
                     request.toJson(),
                     queryExecution.toJson(),
