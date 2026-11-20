@@ -157,11 +157,8 @@ public class RESTClientTest {
                 + "select from llm "
                 + "where factId = 'Flight:AUS-DFW:001' "
                 + "and relatedFactIds = 'Airport:AUS,Airport:DFW' "
-                + "control "
-                + "parameters = 'from, to' "
                 + "expression = 'from != to' "
-                + "spec = 'if expression is true then allow, else deny' "
-                + "result = 'decision'";
+                + "definition = 'if expression is true then allow, else deny'";
 
         QueryResult result = null;
 
@@ -186,7 +183,8 @@ public class RESTClientTest {
 
         String sql = ""
                 + "select from llm "
-                + "where factId = 'Flight:AUS-DFW:001'";
+                + "where factId = 'Flight:AUS-DFW:001' "
+                + "definition = 'Flight availability'";
 
         QueryResult result = null;
 

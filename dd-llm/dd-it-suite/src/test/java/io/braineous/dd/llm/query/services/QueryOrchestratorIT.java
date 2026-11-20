@@ -44,7 +44,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult result = QueryResult.ok(req.toJson(), built.toJson());
+        QueryResult result = QueryResult.ok(req.toJson(), built.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", result.toJson());
 
         // org.junit.jupiter.api.Assertions.assertTrue(result.isOk());
@@ -114,7 +114,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.error("queryresult.contract.invalid", "error", "llm_response_validation", "Flight:F404")
         );
 
-        QueryResult resErr = QueryResult.ok(reqErr.toJson(), builtErr.toJson());
+        QueryResult resErr = QueryResult.ok(reqErr.toJson(), builtErr.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", resErr.toJson());
         org.junit.jupiter.api.Assertions.assertTrue(resErr.isOk());
 
@@ -142,7 +142,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult resOk = QueryResult.ok(reqOk.toJson(), builtOk.toJson());
+        QueryResult resOk = QueryResult.ok(reqOk.toJson(), builtOk.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", resOk.toJson());
 
         QueryExecution<?> execOk = QueryExecution.fromJson(resOk.getQueryExecutionJson());
@@ -283,7 +283,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult res = QueryResult.ok(req.toJson(), built.toJson());
+        QueryResult res = QueryResult.ok(req.toJson(), built.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
 
@@ -499,7 +499,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult res = QueryResult.ok(req.toJson(), built.toJson());
+        QueryResult res = QueryResult.ok(req.toJson(), built.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
         org.junit.jupiter.api.Assertions.assertNotNull(res.getQueryExecutionJson());
@@ -549,7 +549,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult res = QueryResult.ok(req.toJson(), built.toJson());
+        QueryResult res = QueryResult.ok(req.toJson(), built.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
 
@@ -584,7 +584,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult res = QueryResult.ok(req.toJson(), built.toJson());
+        QueryResult res = QueryResult.ok(req.toJson(), built.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());
 
@@ -866,7 +866,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult resNull = QueryResult.ok(reqNull.toJson(), builtNull.toJson());
+        QueryResult resNull = QueryResult.ok(reqNull.toJson(), builtNull.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", resNull.toJson());
         org.junit.jupiter.api.Assertions.assertNotNull(resNull.getQueryExecutionJson());
 
@@ -885,7 +885,7 @@ public class QueryOrchestratorIT {
                 ValidationResult.ok("llm_response_validation")
         );
 
-        QueryResult resBlank = QueryResult.ok(reqBlank.toJson(), builtBlank.toJson());
+        QueryResult resBlank = QueryResult.ok(reqBlank.toJson(), builtBlank.toHistoryJson());
         ai.braineous.rag.prompt.observe.Console.log("IT", resBlank.toJson());
         org.junit.jupiter.api.Assertions.assertNotNull(resBlank.getQueryExecutionJson());
 
@@ -917,7 +917,9 @@ public class QueryOrchestratorIT {
 
         QueryRequest req = new QueryRequest(meta, ctx, task);
 
-        QueryResult res = orch.execute(req);
+        QueryResult res = orch.execute(
+            req, null, null, null, null
+        );
         ai.braineous.rag.prompt.observe.Console.log("IT", res.toJson());
 
         // org.junit.jupiter.api.Assertions.assertTrue(res.isOk());

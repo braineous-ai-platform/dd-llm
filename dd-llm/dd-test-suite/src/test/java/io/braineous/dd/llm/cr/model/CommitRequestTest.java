@@ -259,7 +259,7 @@ public class CommitRequestTest {
             CgoQueryPipeline pipeline = mock(CgoQueryPipeline.class);
             QueryOrchestrator orch = new QueryOrchestrator(pipeline);
 
-            QueryResult out = orch.execute(null);
+            QueryResult out = orch.execute(null, null, null, null, null);
 
             Console.log("UT", out.toJson());
 
@@ -277,10 +277,14 @@ public class CommitRequestTest {
             CgoQueryPipeline pipeline = mock(CgoQueryPipeline.class);
             QueryRequest request = mock(QueryRequest.class);
 
-            when(pipeline.execute(request)).thenReturn(null);
+            when(pipeline.execute(
+                request, null, null, null, null, null, null
+            )).thenReturn(null);
 
             QueryOrchestrator orch = new QueryOrchestrator(pipeline);
-            QueryResult out = orch.execute(request);
+            QueryResult out = orch.execute(
+                request, null, null, null, null
+            );
 
             Console.log("UT", out.toJson());
 
@@ -288,7 +292,9 @@ public class CommitRequestTest {
             assertNotNull(out.getWhy());
             assertEquals("DD-LLM-QUERYORCH-FAIL-execution_null", out.getWhy().reason());
 
-            verify(pipeline, times(1)).execute(request);
+            verify(pipeline, times(1)).execute(
+                request, null, null, null, null, null, null
+            );
             verifyNoMoreInteractions(pipeline);
         }
 
@@ -310,12 +316,17 @@ public class CommitRequestTest {
             execJson.addProperty("tookMs", 7);
 
             when(request.toJson()).thenReturn(reqJson);
-            when(execution.toJson()).thenReturn(execJson);
+            when(execution.toHistoryJson()).thenReturn(execJson);
             when(execution.isOk()).thenReturn(true);
-            when(pipeline.execute(request)).thenReturn(execution);
+            when(execution.getRawResponse()).thenReturn("success");
+            when(pipeline.execute(
+                request, null, null, null, null, null, null
+            )).thenReturn(execution);
 
             QueryOrchestrator orch = new QueryOrchestrator(pipeline);
-            QueryResult out = orch.execute(request);
+            QueryResult out = orch.execute(
+                request, null, null, null, null
+            );
 
             Console.log("UT", out.toJson());
 
@@ -330,7 +341,9 @@ public class CommitRequestTest {
             assertEquals("ok", out.getQueryExecutionJson().get("stage").getAsString());
             assertEquals(7, out.getQueryExecutionJson().get("tookMs").getAsInt());
 
-            verify(pipeline, times(1)).execute(request);
+            verify(pipeline, times(1)).execute(
+                request, null, null, null, null, null, null
+            );
             verifyNoMoreInteractions(pipeline);
         }
     }

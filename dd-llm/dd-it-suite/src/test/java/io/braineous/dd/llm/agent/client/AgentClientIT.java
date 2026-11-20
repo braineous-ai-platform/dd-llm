@@ -191,7 +191,7 @@ public class AgentClientIT {
                 ValidationResult.ok("llm_response_validation"),
                 null
         );
-        return QueryResult.ok(req.toJson(), exec.toJson());
+        return QueryResult.ok(req.toJson(), exec.toHistoryJson());
     }
 
     private void seedPayGraph() {

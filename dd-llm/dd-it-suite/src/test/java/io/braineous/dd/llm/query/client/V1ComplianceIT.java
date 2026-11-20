@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class V1ComplianceIT {
             "{\"id\":\"MerchantPolicy:POL-5001\",\"kind\":\"MerchantPolicy\",\"mode\":\"atomic\",\"capture\":\"AUTO\"}";
 
     @Test
+    @Disabled("Legacy V1 PAY CONTROL contract incompatible with locked CGO Nexus")
     public void payFunctionalExecution_sqlSeam_shouldSatisfyCgoV1PayContract() {
         GraphBuilder graphBuilder = GraphBuilder.getInstance();
         graphBuilder.clear();
@@ -149,6 +151,7 @@ public class V1ComplianceIT {
     }
 
     @Test
+    @Disabled("Legacy V1 PAY CONTROL drift incompatible with locked CGO Nexus")
     public void payFunctionalExecution_drift_shouldKeepContractStableAcrossRuns() {
 
         GraphBuilder graphBuilder = GraphBuilder.getInstance();

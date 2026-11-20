@@ -48,12 +48,22 @@ public class RESTClient implements QueryClient {
         String queryKind = readString(intent, "type");
         String query = readString(intent, "goal");
         String factId = readString(taskJson, "factId");
+        String expression = readString(taskJson, "expression");
+        String definition = readString(taskJson, "definition");
 
         List<String> relatedFacts = readStringArray(taskJson, "relatedFactIds");
         List<String> requestedFields = readStringArray(taskJson, "select");
         List<Control> controls = readControlsFromTask(taskJson);
 
-        return query(queryKind, query, factId, relatedFacts, requestedFields, controls);
+        return query(
+                queryKind,
+                query,
+                factId,
+                relatedFacts,
+                requestedFields,
+                controls,
+                expression,
+                definition);
     }
 
     @Override
@@ -61,7 +71,7 @@ public class RESTClient implements QueryClient {
                              String query,
                              String fact,
                              List<String> relatedFacts) {
-        return query(queryKind, query, fact, relatedFacts, null, null);
+        return query(queryKind, query, fact, relatedFacts, null, null, null, null);
     }
 
     private QueryResult query(String queryKind,
@@ -69,7 +79,9 @@ public class RESTClient implements QueryClient {
                               String fact,
                               List<String> relatedFacts,
                               List<String> requestedFields,
-                              List<Control> controls) {
+                              List<Control> controls,
+                              String expression,
+                              String definition) {
 
         // if (queryKind == null || queryKind.trim().isEmpty()) {
         //     return null;
@@ -140,7 +152,13 @@ public class RESTClient implements QueryClient {
 
         QueryOrchestrator orch = new QueryOrchestrator();
 
-        QueryResult result = orch.execute(request);
+        QueryResult result =
+                orch.execute(
+                        request,
+                        anchor,
+                        safeRelatedFacts,
+                        expression,
+                        definition);
         if (result == null) {
             return null;
         }

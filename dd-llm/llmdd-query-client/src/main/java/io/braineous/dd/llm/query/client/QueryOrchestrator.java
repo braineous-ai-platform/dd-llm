@@ -1,5 +1,6 @@
 package io.braineous.dd.llm.query.client;
 
+import ai.braineous.rag.prompt.cgo.api.Fact;
 import ai.braineous.rag.prompt.cgo.api.QueryExecution;
 import ai.braineous.rag.prompt.cgo.prompt.PromptBuilder;
 import ai.braineous.rag.prompt.cgo.query.CgoQueryPipeline;
@@ -7,6 +8,8 @@ import ai.braineous.rag.prompt.cgo.query.QueryRequest;
 import ai.braineous.rag.prompt.cgo.querygen.services.QueryResultValidator;
 import io.braineous.dd.llm.core.model.Why;
 import jakarta.enterprise.context.ApplicationScoped;
+
+import java.util.List;
 
 @ApplicationScoped
 public class QueryOrchestrator implements QueryExecutor{
@@ -43,13 +46,26 @@ public class QueryOrchestrator implements QueryExecutor{
     }
 
     @Override
-    public QueryResult execute(QueryRequest request) {
+    public QueryResult execute(
+            QueryRequest request,
+            Fact axis,
+            List<String> relatedFacts,
+            String expression,
+            String definition) {
 
         if (request == null) {
             return QueryResult.fail(new Why(WHY_CODE_NULL_REQUEST, WHY_MSG_NULL_REQUEST));
         }
 
-        QueryExecution queryExecution = this.pipeline.execute(request);
+        QueryExecution queryExecution =
+                this.pipeline.execute(
+                        request,
+                        axis,
+                        relatedFacts,
+                        expression,
+                        definition,
+                        null,
+                        null);
         if (queryExecution == null) {
             return QueryResult.fail(new Why(WHY_CODE_NULL_EXEC, WHY_MSG_NULL_EXEC));
         }
@@ -79,6 +95,6 @@ public class QueryOrchestrator implements QueryExecutor{
             );
         }
 
-        return QueryResult.ok(request.toJson(), queryExecution.toJson());
+        return QueryResult.ok(request.toJson(), queryExecution.toHistoryJson());
     }
 }

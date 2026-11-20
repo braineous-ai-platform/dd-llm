@@ -51,7 +51,7 @@ public class TransactionServiceCognitiveFailFastTest {
 
         when(request.toJson()).thenReturn(reqJson);
 
-        when(execSuccess.toJson()).thenReturn(successExecJson);
+        when(execSuccess.toHistoryJson()).thenReturn(successExecJson);
         when(execSuccess.isOk()).thenReturn(true);
         when(execSuccess.getRawResponse()).thenReturn("success");
 
@@ -59,7 +59,9 @@ public class TransactionServiceCognitiveFailFastTest {
         when(execFail.isOk()).thenReturn(true);
         when(execFail.getRawResponse()).thenReturn("fail");
 
-        when(pipeline.execute(request)).thenReturn(execSuccess, execFail);
+        when(pipeline.execute(
+            request, null, null, null, null, null, null
+        )).thenReturn(execSuccess, execFail);
 
         QueryOrchestrator orch = new QueryOrchestrator(pipeline);
 
@@ -74,7 +76,9 @@ public class TransactionServiceCognitiveFailFastTest {
             @Override
             public QueryResult query(String sql) {
                 queried.add(sql);
-                return orch.execute(request);
+                return orch.execute(
+                    request, null, null, null, null
+                );
             }
         };
 
@@ -130,6 +134,8 @@ public class TransactionServiceCognitiveFailFastTest {
                 "DD-LLM-QUERYORCH-FAIL-result_not_success",
                 step2.getQueryResult().getWhy().reason());
 
-        verify(pipeline, times(2)).execute(request);
+        verify(pipeline, times(2)).execute(
+            request, null, null, null, null, null, null
+        );
     }
 }

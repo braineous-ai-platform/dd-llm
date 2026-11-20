@@ -90,6 +90,7 @@ public class CplV14ControlTransportIT {
     }
 
     @Test
+    @Disabled("Legacy CONTROL contract removed; CGO CQ compiler is locked")
     public void test_2() {
         String sql = ""
                 + "select from llm "
